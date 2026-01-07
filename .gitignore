@@ -29,7 +29,7 @@ lerna-debug.log*
 apps/.env
 apps/api/.env
 apps/lovable_web/.env
-.config/
+apps/api/.config/adaptive-italian-audio.json
 
 # Testing
 coverage/
