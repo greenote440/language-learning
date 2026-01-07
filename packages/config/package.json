@@ -1,0 +1,6 @@
+{
+  "name": "@adaptive-italian-audio/config",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shared configuration files for the monorepo"
+}

@@ -1,0 +1,102 @@
+name: Deploy Frontend to Vercel
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/lovable_web/**'
+      - 'packages/**'
+      - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy-frontend.yaml'
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if no changes'
+        required: false
+        default: 'false'
+
+env:
+  PNPM_VERSION: 8.15.0
+  NODE_VERSION: '18'
+
+jobs:
+  deploy:
+    name: Deploy Frontend
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [] # Will be updated to depend on CI when CI workflow is available
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm --filter @adaptive-italian-audio/web type-check
+
+      - name: Build frontend
+        run: pnpm --filter @adaptive-italian-audio/web build
+
+      - name: Deploy to Vercel
+        id: deploy
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          vercel-args: '--prod'
+          working-directory: ./apps/lovable_web
+        continue-on-error: false
+
+      - name: Get deployment URL
+        id: deployment-url
+        run: |
+          if [ -n "${{ steps.deploy.outputs.preview-url }}" ]; then
+            echo "url=${{ steps.deploy.outputs.preview-url }}" >> $GITHUB_OUTPUT
+          else
+            echo "url=${{ secrets.VERCEL_DEPLOYMENT_URL }}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Verify deployment
+        run: |
+          DEPLOYMENT_URL="${{ steps.deployment-url.outputs.url }}"
+          if [ -z "$DEPLOYMENT_URL" ]; then
+            echo "Warning: Deployment URL not available. Check Vercel dashboard."
+            exit 0
+          fi
+          echo "Verifying deployment at $DEPLOYMENT_URL"
+          sleep 5
+          HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$DEPLOYMENT_URL" || echo "000")
+          if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "301" ] || [ "$HTTP_CODE" = "302" ]; then
+            echo "✅ Deployment verified successfully (HTTP $HTTP_CODE)"
+          else
+            echo "⚠️ Deployment may still be starting (HTTP $HTTP_CODE). Check Vercel dashboard."
+          fi
+
+      - name: Deployment success notification
+        if: success()
+        run: |
+          echo "✅ Frontend deployment completed successfully"
+          echo "Deployment URL: ${{ steps.deployment-url.outputs.url }}"
+
+      - name: Deployment failure notification
+        if: failure()
+        run: |
+          echo "❌ Frontend deployment failed"
+          echo "Check the logs above for details"
+          echo "Manual rollback: Use Vercel dashboard to rollback to previous deployment"

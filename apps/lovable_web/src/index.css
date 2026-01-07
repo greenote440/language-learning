@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 
+  Adaptive Italian Audio - Design System
+  Aesthetic: Premium Italian media platform - warm, sophisticated, Mediterranean
+  Colors inspired by Italian landscape: terracotta, olive, warm cream, espresso
+*/
+
+@layer base {
+  :root {
+    /* Warm cream background - like aged Italian parchment */
+    --background: 40 33% 97%;
+    --foreground: 25 30% 12%;
+
+    /* Card surfaces - slightly warmer than background */
+    --card: 40 40% 99%;
+    --card-foreground: 25 30% 12%;
+
+    --popover: 40 40% 99%;
+    --popover-foreground: 25 30% 12%;
+
+    /* Primary - Deep terracotta/burnt sienna - Italian warmth */
+    --primary: 15 65% 42%;
+    --primary-foreground: 40 33% 97%;
+
+    /* Secondary - Soft olive green tones */
+    --secondary: 45 25% 90%;
+    --secondary-foreground: 25 30% 20%;
+
+    /* Muted - Warm neutral for subtle elements */
+    --muted: 35 20% 92%;
+    --muted-foreground: 25 15% 45%;
+
+    /* Accent - Warm coral/terracotta for hearts and highlights */
+    --accent: 8 75% 55%;
+    --accent-foreground: 40 33% 97%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 40 33% 97%;
+
+    /* Subtle warm borders */
+    --border: 35 20% 88%;
+    --input: 35 20% 88%;
+    --ring: 15 65% 42%;
+
+    --radius: 1rem;
+
+    /* Shadows - warm tinted */
+    --shadow-color: 25 30% 12%;
+
+    --sidebar-background: 40 30% 96%;
+    --sidebar-foreground: 25 25% 30%;
+    --sidebar-primary: 15 65% 42%;
+    --sidebar-primary-foreground: 40 33% 97%;
+    --sidebar-accent: 35 20% 92%;
+    --sidebar-accent-foreground: 25 30% 20%;
+    --sidebar-border: 35 20% 88%;
+    --sidebar-ring: 15 65% 42%;
+  }
+
+  .dark {
+    /* Deep espresso background */
+    --background: 25 30% 8%;
+    --foreground: 40 25% 92%;
+
+    --card: 25 25% 12%;
+    --card-foreground: 40 25% 92%;
+
+    --popover: 25 25% 12%;
+    --popover-foreground: 40 25% 92%;
+
+    /* Warm terracotta - lighter for dark mode */
+    --primary: 15 55% 55%;
+    --primary-foreground: 25 30% 8%;
+
+    --secondary: 25 20% 18%;
+    --secondary-foreground: 40 25% 85%;
+
+    --muted: 25 20% 16%;
+    --muted-foreground: 35 15% 55%;
+
+    --accent: 8 65% 50%;
+    --accent-foreground: 40 33% 97%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 40 25% 92%;
+
+    --border: 25 20% 18%;
+    --input: 25 20% 18%;
+    --ring: 15 55% 55%;
+
+    --sidebar-background: 25 30% 10%;
+    --sidebar-foreground: 40 20% 85%;
+    --sidebar-primary: 15 55% 55%;
+    --sidebar-primary-foreground: 25 30% 8%;
+    --sidebar-accent: 25 20% 16%;
+    --sidebar-accent-foreground: 40 20% 85%;
+    --sidebar-border: 25 20% 18%;
+    --sidebar-ring: 15 55% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+}
+
+@layer components {
+  /* Smooth fade-in animation */
+  .animate-fade-in {
+    animation: fadeIn 0.4s ease-out forwards;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* Elevated shadow for cards and buttons */
+  .shadow-elevated {
+    box-shadow: 
+      0 4px 6px -1px hsl(var(--shadow-color) / 0.08),
+      0 10px 20px -5px hsl(var(--shadow-color) / 0.12);
+  }
+
+  .shadow-elevated-hover {
+    box-shadow: 
+      0 8px 12px -2px hsl(var(--shadow-color) / 0.1),
+      0 16px 32px -8px hsl(var(--shadow-color) / 0.15);
+  }
+
+  /* Safe area padding for mobile */
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom, 24px);
+  }
+}
+
+@layer utilities {
+  /* Typography utilities */
+  .font-serif {
+    font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  }
+
+  .font-sans {
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  }
+
+  /* Custom border width */
+  .border-3 {
+    border-width: 3px;
+  }
+}

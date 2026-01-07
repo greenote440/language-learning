@@ -1,0 +1,806 @@
+# Adaptive Italian Audio for Accelerated Acquisition - Product Requirements Document (PRD)
+
+**Document Version:** 1.0  
+**Date:** 2026-01-07  
+**Status:** Draft
+
+---
+
+## Goals and Background Context
+
+### Goals
+
+- Transform language learning from work into entertainment through adaptive Italian audio content that users consume passively
+- Deliver sufficient comprehensible input volume (50+ hours within 6 months) to drive natural language acquisition
+- Sustain 30+ minute listening sessions through engaging serial narratives, podcasts, and educational content formats
+- Provide adaptive difficulty that automatically matches individual comprehension levels, maintaining optimal "i+1" exposure zone
+- Achieve 40%+ 30-day user retention by delivering ongoing value that fits into user lifestyles
+- Validate that passive behavioral signals (listening patterns, session duration, completion rates) enable effective comprehension inference without explicit testing
+- Prove economic viability by operating within free-tier API limits for MVP scale (1,000+ users)
+- Enable plateaued intermediate learners to break through their learning plateaus through optimized input exposure
+- Create a lean-back experience that feels like consuming personalized Italian media, not studying
+
+### Background Context
+
+Language learners struggle to access sufficient volumes of comprehensible, engaging input—the critical requirement for natural language acquisition according to Second Language Acquisition (SLA) research. Existing solutions either require explicit study (breaking immersion) or provide static content that doesn't adapt to individual comprehension levels, leading to inefficient acquisition rates and limited engagement. Traditional apps like Duolingo and Babbel break input into small, disconnected exercises that feel like work, limiting session duration. Media consumption (podcasts, YouTube) provides volume but lacks comprehensibility control—content is either too difficult or too easy. This adaptive Italian audio application solves both problems by generating personalized, serial narrative content that automatically adapts to each learner's evolving comprehension level, optimizing for both sustained engagement and natural language acquisition. The app functions as a language-driven media system where users consume compelling Italian stories, dialogues, and narratives that maintain engagement while accelerating acquisition through optimized input exposure.
+
+### Change Log
+
+| Date | Version | Description | Author |
+|------|---------|-------------|--------|
+| 2026-01-07 | 1.0 | Initial PRD draft based on Project Brief | PM Agent |
+
+---
+
+## Requirements
+
+### Functional
+
+1. FR1: The system generates Italian audio content in multiple formats (serial narratives with recurring characters and storylines, podcast-style informative/conversational segments, and educational/explanatory content) using free text-to-speech APIs.
+
+2. FR2: The system converts generated Italian text content into audio using free TTS APIs (Google Cloud TTS, Azure Cognitive Services, or ElevenLabs free tier).
+
+3. FR3: The system provides basic adaptive difficulty at the content selection level, distinguishing between "lexical-heavy" content (simpler vocabulary, explicit reference) and "discourse-heavy" content (complex syntax, implicit reference).
+
+4. FR4: Users can manually set their preferred difficulty level during initial onboarding, or the system can infer baseline difficulty from first session behavior.
+
+5. FR5: The system delivers a lean-back audio experience where audio starts playing automatically when the app opens, with minimal interface friction.
+
+6. FR6: Users can access basic playback controls (play, pause, skip forward, skip backward) that are unobtrusive and don't break immersion.
+
+7. FR7: The system tracks passive behavioral signals including listening duration, session frequency, content completion rates, pauses, replays, and skip events.
+
+8. FR8: The system provides a simple user onboarding flow that establishes baseline difficulty preference through self-reporting or first-session inference, without requiring complex profile creation.
+
+9. FR9: The system generates serial narrative content with recurring characters, themes, and storylines that create narrative pull to sustain engagement.
+
+10. FR10: The system includes basic content variation where the same semantic meaning is expressed through different linguistic forms or complexity levels.
+
+11. FR11: The system operates as a responsive web application accessible via modern browsers on desktop, tablet, and mobile devices.
+
+12. FR12: Users can access the application without creating an account for initial use, with optional account creation for persistence across devices.
+
+13. FR13: The system presents content in an episodic format, allowing users to continue where they left off in serial narratives or access individual podcast/educational segments.
+
+14. FR14: The system adapts content selection between sessions based on tracked behavioral signals and user preferences.
+
+### Non Functional
+
+1. NFR1: The system operates within free-tier API limits (Google Cloud TTS, OpenAI/text generation APIs) for MVP scale (1,000+ users).
+
+2. NFR2: Audio streaming must have minimal buffering (<2 seconds initial load) and seamless playback without interruption.
+
+3. NFR3: Content generation pipeline must produce Italian text content within 5-10 seconds of user request.
+
+4. NFR4: User interface interactions must respond within 100ms for all user actions (play, pause, skip controls).
+
+5. NFR5: The system must support modern browsers (Chrome, Firefox, Safari, Edge - latest 2 versions) and mobile browsers (iOS Safari, Chrome Mobile).
+
+6. NFR6: The application must be responsive and provide an optimal experience on mobile devices (iOS 13+, Android 8+) and desktop (Windows 10+, macOS 10.15+).
+
+7. NFR7: Generated Italian content must be grammatically correct, coherent, and engaging enough to maintain interest across multiple episodes.
+
+8. NFR8: Audio quality must meet acceptable standards for clear comprehension, within constraints of free-tier TTS API capabilities.
+
+9. NFR9: All user behavioral data collection must be passive and invisible to users—no explicit comprehension testing or visible progress tracking.
+
+10. NFR10: The system must handle concurrent content generation requests through queue-based processing to prevent blocking user experience.
+
+11. NFR11: User data must be stored securely with encryption for sensitive information and compliance with GDPR for EU users.
+
+12. NFR12: The system must implement rate limiting to prevent API abuse and manage free-tier API quotas effectively.
+
+13. NFR13: Generated audio files must be optimized for streaming with efficient audio codecs and adaptive bitrate to minimize data usage.
+
+14. NFR14: The application must function reliably with an internet connection and gracefully handle network interruptions during audio playback.
+
+15. NFR15: Content generation must be reliable and consistent—system must handle API failures gracefully with retry logic or fallback mechanisms.
+
+16. NFR16: The system architecture must be designed for scalability from MVP (1,000 users) to Phase 2 scale without major refactoring.
+
+17. NFR17: API costs must remain below $0.50 per user per month during MVP phase to maintain economic viability.
+
+---
+
+## User Interface Design Goals
+
+### Overall UX Vision
+
+The application functions as a personalized Italian media consumption platform that feels indistinguishable from a premium podcast or audiobook service. The experience prioritizes effortless, lean-back consumption—users open the app and immediately enter a seamless Italian audio world. The interface is minimalist and unobtrusive, with audio playback as the primary interaction. Visual elements support rather than distract from listening, creating a "forget you're learning" experience where users engage with compelling content without feeling the cognitive load of explicit instruction. The design emphasizes narrative immersion, allowing users to lose themselves in stories and conversations that naturally adapt to their comprehension level. Every interaction—from onboarding to content selection—is optimized for speed and simplicity, removing friction that might break immersion or remind users they're in a "learning app."
+
+### Key Interaction Paradigms
+
+**Auto-Play on Launch:** The app opens directly into playback mode, immediately starting the next episode or continuing from where the user left off. No homepage or content selection required—audio begins within 2 seconds of app launch.
+
+**Minimal Control Interface:** Playback controls (play, pause, skip forward 15 seconds, skip backward 15 seconds) are always accessible but unobtrusive, appearing on interaction or when needed. Controls fade when not in use, keeping focus on the listening experience.
+
+**Passive Content Discovery:** Content selection happens automatically based on user preferences and behavioral signals. Users don't actively browse or choose content—the system presents the next appropriate episode seamlessly, similar to how Netflix auto-plays the next episode.
+
+**Invisible Adaptation:** Difficulty adjustment and content personalization occur behind the scenes with no visible indicators. Users experience natural progression through content without seeing progress bars, levels, or difficulty labels.
+
+**Lean-Back First:** All interactions are designed for passive consumption during commutes, exercise, or downtime. The interface supports one-handed mobile use and works with screen-off audio playback on mobile devices.
+
+### Core Screens and Views
+
+**Main Listening Screen:** The primary interface featuring large, elegant audio player controls, current episode title and format indicator (Story/Podcast/Educational), and minimal visual design. Displays current playback position and episode duration. Optional: subtle background imagery or color theme matching content mood (without distracting from audio).
+
+**Onboarding Screen:** Single, simple setup flow asking users to select initial difficulty preference (or skip to let system infer). Maximum 2-3 screens total, completable in under 30 seconds. No account creation required for initial use.
+
+**Content Queue/History Screen (Optional/Minimal):** A lightweight view showing recently listened episodes and what's coming next, accessible via swipe or tap but not prominently featured. Designed for users who want to resume specific content, not as a primary navigation element.
+
+**Settings Screen (Minimal):** Basic controls for difficulty preference adjustment, playback speed (if supported), audio quality, and optional account creation for cross-device sync. Hidden in unobtrusive menu, not part of primary user flow.
+
+### Accessibility: None
+
+_(Note: MVP focuses on core functionality validation. Accessibility features can be added in Phase 2 once core value proposition is proven. Current design prioritizes simplicity and minimal interface complexity.)_
+
+### Branding
+
+The brand identity should evoke Italian culture, storytelling, and media consumption rather than language learning. Visual design should feel warm, inviting, and sophisticated—more like a premium Italian media platform than an educational tool. Consider subtle Italian design elements (colors inspired by Italian art/architecture, elegant typography) without being clichéd. The brand should communicate "personalized Italian audio experiences" rather than "learn Italian." Tone is confident, relaxed, and immersive—the app is your personal Italian radio/podcast feed, not a study companion.
+
+### Target Device and Platforms: Web Responsive
+
+The application is optimized for web responsive design, providing an optimal experience across mobile devices (primary), tablets, and desktop browsers. Mobile-first approach ensures the app works seamlessly on smartphones during commutes, workouts, and daily activities where most listening occurs. Responsive design adapts interface for larger screens while maintaining the lean-back, audio-first experience. Progressive Web App (PWA) capabilities enable app-like experience on mobile (home screen icon, offline capability) without native app development complexity.
+
+---
+
+## Technical Assumptions
+
+### Repository Structure: Monorepo
+
+The project uses a monorepo structure to manage frontend and backend code within a single repository. This approach enables code sharing, unified dependency management, and streamlined development workflows for a small team. The monorepo structure supports clear separation of concerns with distinct service modules (content generation, audio processing, user management, analytics) while maintaining a cohesive codebase. API-first design principles ensure the backend can serve future mobile applications or third-party integrations without modification.
+
+### Service Architecture
+
+The system employs a modular monolith architecture for MVP, with clear service boundaries that can evolve into microservices if scaling requirements demand it. Core services include:
+
+- **Content Generation Service:** Handles Italian text generation via AI APIs, manages prompts, parameters, and content templates
+- **Audio Processing Service:** Coordinates text-to-speech conversion, audio file generation, and audio storage/retrieval
+- **User Service:** Manages user authentication, profiles, preferences, and session management
+- **Learner Model Service:** Tracks behavioral signals, maintains user comprehension model, and determines content difficulty selection
+- **Analytics Service:** Collects and processes behavioral events for adaptation and product insights
+
+Asynchronous processing is implemented using queue-based systems (Bull for Node.js or Celery for Python) to handle content generation requests without blocking the user experience. Event-driven architecture enables behavioral signals to trigger adaptation logic without tight coupling between services.
+
+**Rationale:** Modular monolith provides benefits of service separation (maintainability, testing) without operational complexity of true microservices. This approach fits MVP constraints (small team, limited infrastructure) while enabling future scaling. Async processing ensures 5-10 second content generation doesn't block user interface.
+
+### Testing Requirements
+
+The project implements a testing strategy focusing on Unit + Integration testing for MVP:
+
+**Unit Testing:**
+- Core business logic (content generation prompts, difficulty adaptation algorithms, learner model updates)
+- Service layer functions (audio processing, user management, analytics)
+- Utility functions and helpers
+- Target: 70%+ code coverage for critical paths
+
+**Integration Testing:**
+- API endpoint testing (content generation flow, audio delivery, user authentication)
+- Service-to-service interactions (content generation → audio processing → storage)
+- Database operations and data persistence
+- Third-party API integrations (TTS, text generation) with mocking
+
+**End-to-End Testing (Limited):**
+- Critical user flows only (onboarding → content playback → session completion)
+- Automated testing for audio playback functionality
+- Basic cross-browser compatibility testing
+
+**Manual Testing Convenience Methods:**
+- Test utilities for generating sample content quickly
+- Mock behavioral signals for testing adaptation logic
+- Content quality validation tools
+- Performance profiling tools for content generation pipeline
+
+**Rationale:** Unit + Integration testing provides sufficient confidence for MVP while maintaining development velocity. Full E2E testing adds complexity and maintenance burden that may slow MVP delivery. Manual testing tools enable rapid validation of content quality and adaptation behavior, which are critical for product success. Testing focuses on areas with highest risk: content generation reliability, adaptation accuracy, and audio playback quality.
+
+### Additional Technical Assumptions and Requests
+
+**Frontend Technology Stack:**
+- React with TypeScript for type safety and component-based architecture
+- Context API for state management (user state, playback state, content state)
+- Tailwind CSS for responsive styling and rapid UI development
+- HTML5 Audio API with custom controls for audio playback
+- Service Workers for PWA capabilities (offline caching, background sync)
+
+**Backend Technology Stack:**
+- Node.js with Express for RESTful API (aligns with JavaScript ecosystem)
+- TypeScript for type safety across full stack
+- JWT-based authentication for stateless user sessions
+- PostgreSQL for structured data (user profiles, content metadata, behavioral tracking)
+- Redis for session caching and frequently accessed data
+
+**Hosting and Infrastructure:**
+- Frontend: Vercel or Netlify for seamless deployment and CDN
+- Backend: Railway or Render for scalable Node.js hosting with reasonable free tiers
+- Database: Managed PostgreSQL (Railway, Supabase, or AWS RDS free tier)
+- Audio Storage: AWS S3 or Google Cloud Storage for generated audio files
+- CDN: CloudFlare for audio file delivery and global performance optimization
+
+**Third-Party API Integrations:**
+- **Text-to-Speech:** Google Cloud TTS (primary) with Azure Cognitive Services as fallback
+- **Text Generation:** OpenAI GPT-4 or GPT-3.5-turbo for Italian content generation
+- **Analytics:** Custom analytics implementation (PostgreSQL-based) for behavioral tracking, avoiding third-party service costs
+- **Authentication:** Custom JWT implementation (no Auth0/Firebase to minimize costs)
+
+**Development Tools:**
+- Git with GitHub for version control
+- GitHub Actions for CI/CD (automated testing, deployment)
+- ESLint + Prettier for code quality and formatting
+- Docker for local development environment consistency (optional)
+
+**Security and Compliance:**
+- HTTPS everywhere (enforced by hosting platform)
+- Environment variables for all API keys and secrets
+- Rate limiting on API endpoints to prevent abuse
+- Input validation and sanitization for all user inputs
+- GDPR-compliant data handling (user consent, data export, deletion)
+
+**Performance Optimization:**
+- Content generation queue to handle concurrent requests efficiently
+- Audio file caching strategy (generate once, serve many)
+- Database query optimization with proper indexing
+- Lazy loading and code splitting for frontend bundle size
+- Service worker caching for offline audio playback (cached content only)
+
+**Scalability Considerations:**
+- Design supports horizontal scaling of backend services
+- Database connection pooling for efficient resource usage
+- Queue-based content generation can scale with worker processes
+- CDN distribution handles audio delivery at scale
+- Architecture designed to scale from MVP (1,000 users) to Phase 2 (10,000+ users) without major refactoring
+
+**Known Constraints and Limitations:**
+- Free-tier API limits may require careful usage monitoring and optimization
+- Content generation latency (5-10 seconds) is acceptable but not ideal
+- Audio quality limited by free-tier TTS capabilities (may not match premium services)
+- No offline mode for content generation (requires internet connection)
+- Single-language support (Italian only) for MVP
+
+---
+
+## Epic List
+
+**Epic 1: Foundation & Core Audio Experience**
+
+Establish foundational project infrastructure (monorepo setup, Git repository, CI/CD pipeline, deployment environments), build responsive web application framework, implement audio playback system with lean-back interface, and deliver initial working product with sample Italian audio content to validate core listening experience.
+
+**Epic 2: Content Generation & Delivery Pipeline**
+
+Integrate AI text generation APIs (OpenAI) for Italian content creation, implement text-to-speech conversion (Google Cloud TTS), build content generation service with serial narrative support, create episodic content structure with recurring characters, and establish audio storage/retrieval system to enable infinite adaptive content generation.
+
+**Epic 3: User System & Basic Adaptation**
+
+Implement user authentication (JWT-based, optional account creation), build onboarding flow for difficulty preference selection, create basic adaptation logic (lexical-heavy vs. discourse-heavy content selection), develop user preference management system, and integrate difficulty-based content filtering to deliver personalized content experience.
+
+**Epic 4: Behavioral Tracking & Learner Model**
+
+Implement passive behavioral signal collection (listening duration, completion rates, pauses, replays, skips), build analytics service for event tracking, create learner model service with basic comprehension inference, develop session-based adaptation logic that updates content selection based on behavioral signals, and complete MVP adaptation system.
+
+---
+
+## Epic 1: Foundation & Core Audio Experience
+
+**Epic Goal:**
+
+Establish the foundational technical infrastructure for the application including monorepo structure, development tooling, CI/CD pipeline, and deployment environments. Simultaneously build the core responsive web application framework and implement the lean-back audio playback experience with minimal interface. The epic delivers a working product that allows users to listen to Italian audio content immediately, validating the core listening experience hypothesis before investing in content generation infrastructure. This epic proves the technical feasibility and user experience viability of the audio-first, lean-back approach.
+
+### Story 1.1: Project Setup & Infrastructure Foundation
+
+**As a** developer,  
+**I want** a monorepo structure with frontend and backend separation, development tooling configured, and basic CI/CD pipeline,  
+**so that** the team can develop and deploy the application efficiently from day one.
+
+**Acceptance Criteria:**
+
+1. Monorepo structure created with clear separation between frontend and backend code
+2. TypeScript configuration set up for both frontend and backend
+3. ESLint and Prettier configured for code quality and consistent formatting
+4. Git repository initialized with appropriate .gitignore and initial commit
+5. Basic package.json structure with dependencies management (npm/yarn workspaces)
+6. Environment variable management configured (.env files, environment-specific configs)
+7. GitHub Actions workflow created for automated testing (currently runs linting only, ready for future test integration)
+8. README.md with project structure documentation and setup instructions
+
+### Story 1.2: Responsive Web Application Framework
+
+**As a** user,  
+**I want** to access the application through a modern web browser on my mobile device or desktop with a scrolling feed interface,  
+**so that** I can listen to Italian audio content from anywhere with an internet connection using a natural scrolling interaction.
+
+**Acceptance Criteria:**
+
+1. React application initialized with TypeScript template
+2. Responsive layout system implemented using Tailwind CSS
+3. Application renders and functions correctly on mobile devices (iOS Safari, Chrome Mobile)
+4. Application renders and functions correctly on desktop browsers (Chrome, Firefox, Safari, Edge - latest 2 versions)
+5. Mobile-first responsive design adapts interface for tablet and desktop screens
+6. Continuous scrolling feed layout structure implemented (supports vertical scrolling with bidirectional navigation)
+7. Scroll detection and handling infrastructure in place (tracks scroll direction, position, triggers content actions)
+8. Basic routing structure in place (ready for future route expansion)
+9. Application loads successfully and displays initial UI in under 2 seconds on 3G connection
+10. Progressive Web App (PWA) manifest configured with app name, icons, and display mode
+
+### Story 1.3: Audio Playback System
+
+**As a** user,  
+**I want** to play Italian audio content through a clean, minimal interface that seamlessly handles content transitions when scrolling,  
+**so that** I can focus on listening without interface distractions and smoothly move between different episodes.
+
+**Acceptance Criteria:**
+
+1. HTML5 Audio API integrated with custom playback controls
+2. Play, pause, skip forward (15 seconds), and skip backward (15 seconds) controls implemented
+3. Audio controls are visible and accessible but unobtrusive (minimal visual footprint)
+4. Playback position indicator displays current time and total duration
+5. Audio playback works seamlessly across all supported browsers and devices
+6. Audio continues playing when user switches browser tabs or minimizes window (mobile)
+7. Playback controls respond to user interactions within 100ms
+8. Audio buffering and loading states handled gracefully (loading indicator, error handling)
+9. Audio playback quality is clear and consistent across devices
+10. System handles content switching triggered by scrolling (stops current playback, loads new content, starts playback)
+11. Audio player can load and play multiple different content sources (supports content from generation and from temporary storage)
+12. Smooth audio transitions when switching between content (fade out/in or clean stop/start without audio glitches)
+13. Playback state properly managed when scrolling (pause current, play new, maintain position for previously played content)
+
+### Story 1.4: Lean-Back Auto-Play Experience
+
+**As a** user,  
+**I want** audio to start playing automatically when I open the app by generating and playing the first content,  
+**so that** I can begin listening immediately without navigating or selecting content.
+
+**Acceptance Criteria:**
+
+1. Application automatically triggers first content generation when opened (auto-generate on load)
+2. First content generation and audio playback initiates within 2 seconds of application load
+3. Auto-play behavior works reliably across different browsers (handles browser auto-play policies)
+4. If browser blocks auto-play, user sees clear visual cue to start playback manually
+5. Audio begins playing automatically with the first generated content (no user selection required)
+6. First generated content is automatically stored in temporary session storage for backward navigation
+7. Auto-play behavior is consistent across mobile and desktop experiences
+8. Auto-play does not trigger on every page navigation, only on initial app load or explicit "start listening" action
+9. Initial content generation uses default template/content format (narrative, podcast, or educational - can be randomized)
+
+### Story 1.5: Continuous Content Scrolling & Temporary Storage
+
+**As a** user,  
+**I want** to scroll forward to generate new Italian audio content and scroll backward to access previously generated content,  
+**so that** I can discover fresh content while also being able to return to episodes I've already heard or generated during my session.
+
+**Acceptance Criteria:**
+
+1. Continuous scrolling interface implemented (vertical scroll on mobile, scroll wheel on desktop) with bidirectional navigation
+2. Scrolling forward (down) triggers generation of fresh Italian audio content (content is newly generated on-demand)
+3. Scrolling backward (up) accesses previously generated content from the current session (content is stored temporarily)
+4. All generated/listened content during a session is stored temporarily (in-memory or session storage) for backward navigation
+5. When user scrolls in either direction, current playback stops and the selected content begins playing automatically
+6. Content generation happens on-demand when scrolling forward to new content (no pre-loading beyond current viewport)
+7. Previously generated content loads instantly when scrolling backward (no regeneration needed, retrieved from temporary storage)
+8. At least 3 sample content generation templates prepared for MVP (narrative, podcast-style, educational formats)
+9. Generated content is immediately available for playback after scrolling forward (generation happens in background, playback starts when ready)
+10. Smooth transition between content when scrolling (audio fades out/in or stops cleanly)
+11. Visual indicator shows current content position in feed and scroll direction (minimal, unobtrusive - title/format type visible)
+12. Scrolling feels natural and responsive (no lag, smooth UI interactions in both directions)
+13. Content metadata (title, format type, duration) displays for current playing content
+14. Sample content generation demonstrates different content formats (story, podcast, educational) mentioned in requirements
+15. System handles scroll-triggered generation gracefully (handles rapid scrolling, shows loading state during generation)
+16. Temporary storage persists for the duration of the user session (content available until session ends or browser is closed)
+17. User can scroll back through entire session history (all content generated/listened during current session)
+
+### Story 1.6: Basic UI/UX Polish & Service Worker Setup
+
+**As a** user,  
+**I want** a polished, elegant interface with smooth scrolling and content transitions that feels like a premium media app,  
+**so that** the experience feels like entertainment rather than a learning tool.
+
+**Acceptance Criteria:**
+
+1. Visual design implemented with elegant color palette and typography
+2. UI elements follow consistent design system (spacing, colors, typography, components)
+3. Continuous scrolling feed has polished visual design (smooth scroll animations, content card styling, feed layout)
+4. Loading states and transitions implemented for smooth user experience (content generation indicators, scroll feedback)
+5. Visual feedback for scroll actions (subtle indicators for scroll direction, content position in feed)
+6. Content cards/items in feed have consistent, elegant styling (title, format, duration displayed cleanly)
+7. Service Worker registered and configured for PWA capabilities
+8. Service Worker caches static assets (CSS, JS, images) for offline functionality
+9. Service Worker caches generated audio content temporarily (enables offline playback of cached content during session)
+10. Application can be "installed" as PWA on mobile devices (home screen icon)
+11. Application displays correctly in both light and dark mode (if dark mode supported by device)
+12. All interactive elements have appropriate hover/active states (including scroll interactions)
+13. UI feels responsive and polished, matching premium podcast/audiobook app aesthetics
+14. Scrolling interactions feel smooth and natural (no jank, responsive feedback, smooth animations)
+
+---
+
+## Epic 2: Content Generation & Delivery Pipeline
+
+**Epic Goal:**
+
+Build the core content generation infrastructure that enables on-demand creation of Italian audio content. Integrate AI text generation APIs to produce engaging Italian narratives, podcasts, and educational content. Implement text-to-speech conversion to transform generated text into audio, and establish a storage and delivery system that integrates seamlessly with the scrolling feed interface from Epic 1. Add content engagement tracking through a like feature (similar to Instagram) that allows users to quickly indicate preferred content types. The epic delivers the ability to generate unlimited, diverse Italian content on-demand, replacing sample content with real-time generation that powers the continuous scrolling experience. Engagement data collected through likes provides the foundation for adaptation logic in Epic 3. This epic proves that AI-powered content generation can produce engaging, coherent Italian content at scale.
+
+### Story 2.1: AI Text Generation Service Integration
+
+**As a** system,  
+**I want** to integrate with AI text generation APIs to produce Italian content on-demand when users scroll forward,  
+**so that** I can generate diverse, engaging Italian narratives, podcasts, and educational content fresh for each scroll action.
+
+**Acceptance Criteria:**
+
+1. OpenAI API (or alternative) integrated into backend service with API key management
+2. Content generation service created with proper error handling and retry logic
+3. API rate limiting and quota management implemented (respects free-tier limits, handles rate limit errors gracefully)
+4. Content generation prompts configured for Italian language output
+5. Support for multiple content format templates (narrative/story, podcast-style, educational/explanatory)
+6. Content generation service accepts preference parameters (difficulty level, format preferences from localStorage)
+7. Generated Italian text is grammatically correct and coherent
+8. Content generation completes within 5-10 seconds (non-blocking, runs asynchronously)
+9. Content generation service returns structured data (text content, metadata, format type, difficulty level, estimated duration, generation timestamp)
+10. Error handling for API failures (network errors, API errors, timeout errors) with appropriate fallback or user feedback
+11. Generated content is validated for basic quality (non-empty, minimum length, Italian language detected)
+12. Content generation works on-demand (generates fresh content each time, not from pre-existing pool)
+
+### Story 2.2: Text-to-Speech Conversion Service
+
+**As a** system,  
+**I want** to convert generated Italian text into high-quality audio using TTS APIs,  
+**so that** users can listen to the generated content as natural-sounding Italian speech.
+
+**Acceptance Criteria:**
+
+1. Google Cloud TTS API (or alternative) integrated into backend service with API key management
+2. TTS service created with proper error handling and retry logic
+3. Italian language voice selected and configured for natural-sounding speech
+4. Audio format configured for optimal quality and file size (MP3 or similar, appropriate bitrate)
+5. TTS conversion completes within 5-10 seconds for typical content length
+6. Generated audio quality is clear and comprehensible (suitable for language learning)
+7. Audio file storage location configured (cloud storage bucket or CDN)
+8. TTS service returns audio file URL and metadata (duration, file size, format)
+9. Error handling for TTS API failures with appropriate fallback or retry logic
+10. Audio generation is asynchronous and doesn't block content text generation
+
+### Story 2.3: Content Generation Pipeline Orchestration
+
+**As a** system,  
+**I want** to orchestrate the complete content generation flow from text generation through TTS conversion to storage and temporary session storage,  
+**so that** I can deliver ready-to-play audio content to users efficiently and support backward navigation through generated content.
+
+**Acceptance Criteria:**
+
+1. Content generation pipeline service coordinates text generation → TTS conversion → cloud storage → session storage workflow
+2. Pipeline handles asynchronous processing (queue-based or promise-based async flow)
+3. Pipeline tracks generation status (generating, processing, completed, failed) for frontend status updates
+4. Generated content metadata stored in both cloud storage and temporary session storage (text content, audio URL, format type, difficulty, duration, generation timestamp, session ID, content characteristics for like tracking)
+5. Audio files stored in cloud storage (S3, Google Cloud Storage, or CDN) for persistence
+6. Complete content data (metadata + audio URL) stored in frontend session storage for backward navigation during session
+7. Content retrieval API endpoint created to fetch generated content by ID (for cloud-stored content)
+8. Pipeline handles errors gracefully at each stage (text generation failure, TTS failure, storage failure)
+9. Generation status can be queried (allows frontend to show loading state, check completion)
+10. Content generation integrates with scrolling feed trigger (pipeline initiated when user scrolls forward to generate new content)
+11. Generated content is immediately available after pipeline completion (cloud storage + session storage, retrievable for playback)
+12. Pipeline supports session-based content organization (content linked to session for backward navigation)
+
+### Story 2.4: Modular Serial Narrative Content System
+
+**As a** system,  
+**I want** to generate serial narrative content with a modular, extensible template system that maintains continuity using session storage,  
+**so that** I can create engaging, connected content that maintains narrative pull across a user's scrolling session and provides a flexible foundation for future enhancements.
+
+**Acceptance Criteria:**
+
+1. Modular serial narrative template system implemented (templates are pluggable, configurable, and easily extensible)
+2. Template system supports multiple narrative genres/themes (adventure, mystery, daily life, romance, thriller, etc.) as separate template modules
+3. Each template module is independently configurable (character definitions, storyline arcs, episode structure, genre-specific parameters)
+4. Template selection system implemented (can select templates based on configuration, randomization, or external signals like user preferences)
+5. Serial narrative continuity system uses session storage to track previous episodes (retrieves previous episode data from session storage)
+6. Content generation prompts include serial narrative context retrieved from session storage (previous episode summary, character state, storyline continuity from same session)
+7. Generated narratives maintain character consistency across episodes within same session (same characters, consistent personalities)
+8. Narrative storylines progress logically across episodes within session (episodes build on previous events from session history)
+9. Episode numbering/titling system implemented within session (Episode 1, Episode 2, etc. per session/storyline)
+10. Serial narrative metadata tracked and stored in session storage (episode number, storyline arc, featured characters, genre, template type, continuity notes, session ID)
+11. Narrative episodes reference previous events from session when appropriate (subtle callbacks, continuity elements from session history)
+12. System can generate multiple concurrent serial narratives across different sessions (different storylines for different sessions)
+13. Template system designed for extensibility (easy to add new genres, modify existing templates, adjust selection logic)
+14. Template selection interface allows external systems to influence selection (preferences from localStorage, ready for future integration)
+15. Template metadata stored (genre, template type, configuration parameters) for potential future analytics and optimization
+16. Continuity system gracefully handles session boundary (new sessions start fresh narratives, no cross-session continuity in MVP)
+
+### Story 2.5: Modular Content Format System
+
+**As a** system,  
+**I want** to generate diverse content formats (narratives, podcasts, educational) with a modular, extensible format system,  
+**so that** I can provide varied content types and maintain a flexible foundation for future enhancements.
+
+**Acceptance Criteria:**
+
+1. Modular content format template system implemented (narrative, podcast-style, educational as separate, pluggable format modules)
+2. Podcast-style content template implemented (informative, conversational, interview-style formats) with sub-categories/topics
+3. Educational content template implemented (explanatory, tutorial-style, cultural topics) with diverse subject areas
+4. Format selection system implemented (can select formats based on configuration, randomization, or external signals)
+5. Format selection system can alternate between content formats (narrative → podcast → educational) based on configuration
+6. Podcast-style content maintains conversational, natural tone (not narrative, more informative)
+7. Educational content focuses on explaining concepts, cultural topics, or interesting facts in Italian
+8. All content formats maintain appropriate length for listening sessions (5-15 minutes typical duration)
+9. Content format metadata tracked and stored (format type, sub-category, topic, theme)
+10. Format templates designed for extensibility (easy to add new formats, modify existing ones, adjust selection logic)
+11. Format selection interface allows external systems to influence selection (API or configuration-based, ready for future integration)
+12. Template and format systems integrate seamlessly (narrative genre selection + format selection work together)
+13. Format system provides foundation for future enhancement (modular architecture ready for adaptation logic to be added later)
+
+### Story 2.6: Content Generation Integration with Scrolling Feed
+
+**As a** system,  
+**I want** to integrate content generation with the scrolling feed interface for on-demand generation and session storage,  
+**so that** generated content automatically appears in the feed when users scroll forward, plays automatically, and is available for backward navigation.
+
+**Acceptance Criteria:**
+
+1. Frontend forward scroll action triggers fresh content generation request to backend (on-demand generation, not pre-existing content)
+2. Frontend backward scroll action retrieves previously generated content from session storage (no new generation)
+3. Content generation initiated asynchronously when user scrolls forward (non-blocking, background processing)
+4. Loading state displayed during forward-scroll generation (visual indicator, smooth UX, shows generation progress)
+5. Backward-scroll content loads instantly from session storage (no loading delay, immediate playback)
+6. Generated content automatically appears in feed when generation completes (forward scroll)
+7. Previously generated content retrieved from session storage appears in feed when scrolling backward
+8. Generated content automatically begins playing when it appears in feed (if user has auto-play enabled)
+9. Content generation queue handles multiple concurrent forward-scroll requests gracefully (prevents duplicate generation)
+10. Error states handled appropriately (generation failure shows error message, allows retry on forward scroll)
+11. Generated content automatically stored in temporary session storage after generation (enables backward navigation)
+12. Session storage maintains scroll order/index (content accessible in same order it was generated for backward navigation)
+13. Content metadata (title, format, duration, difficulty) displays correctly in feed interface
+14. Like button visible and functional on all content items in feed (works during playback, when scrolling)
+14. Generation pipeline integrates seamlessly with existing scrolling feed from Epic 1 (bidirectional scrolling works smoothly)
+15. User preferences from localStorage included in generation requests (difficulty, format preferences affect new content generation)
+
+### Story 2.7: Content Like/Engagement Tracking System
+
+**As a** user,  
+**I want** to quickly like audio content I enjoy (similar to Instagram's like feature),  
+**so that** I can provide feedback on content I find engaging without interrupting my listening experience.
+
+**Acceptance Criteria:**
+
+1. Like button/icon implemented in feed interface (minimal, unobtrusive design, similar to Instagram like interaction)
+2. Like button accessible during playback (tap/double-tap to like, doesn't interrupt audio)
+3. Like action provides immediate visual feedback (icon animation, state change)
+4. Like state persists for content during session (liked status stored with content in session storage)
+5. Like data stored in session storage with content metadata (content ID, like status, timestamp)
+6. Like button shows current like state (filled/active when liked, outline when not liked)
+7. Like interaction is quick and requires minimal effort (single tap or double-tap, no confirmation needed)
+8. Like data structure includes content characteristics (format type, genre, difficulty, template ID) for adaptation use
+9. Like state visible when scrolling backward through previously viewed content (shows if content was liked)
+10. Like data stored in localStorage (persists across sessions, linked to content characteristics not just content ID)
+11. Like system tracks which content types/formats/genres users like (aggregates like data by content characteristics)
+12. Like data structured for easy retrieval and analysis (ready for adaptation logic in Epic 3)
+13. Like feature doesn't interrupt lean-back experience (minimal UI, subtle animations)
+14. Like statistics tracked per session (how many likes, what types of content liked)
+
+---
+
+## Epic 3: User Preferences & Basic Adaptation
+
+**Epic Goal:**
+
+Build a simple onboarding flow that establishes baseline difficulty preferences, and create basic adaptation logic that selects content based on lexical-heavy vs. discourse-heavy difficulty levels. Implement preference storage using browser localStorage to persist user settings across sessions. Integrate user preferences with the content generation system from Epic 2 to deliver personalized content that matches individual comprehension levels. The epic delivers the foundation for personalization while maintaining the lean-back, frictionless experience established in Epic 1. (Note: User authentication deferred to post-MVP.)
+
+### Story 3.1: User Preference Storage & Management
+
+**As a** user,  
+**I want** my preferences (difficulty level, content preferences) to be saved and persist across sessions using browser storage,  
+**so that** I don't have to reconfigure my preferences every time I use the app.
+
+**Acceptance Criteria:**
+
+1. User preference data model created (difficulty level, content format preferences, any other user settings)
+2. Preferences stored in browser localStorage (persists across browser sessions)
+3. Preference retrieval system implemented (loads user preferences on app start from localStorage)
+4. Preference update mechanisms implemented in frontend (can modify preferences, saves to localStorage)
+5. Default preferences applied when user has no saved preferences in localStorage
+6. Preferences API/service integrated with frontend state management
+7. Preference changes persist immediately (auto-save to localStorage, no manual save required)
+8. Preference system designed for extensibility (easy to add new preference types in future)
+9. localStorage data structure allows for easy migration to database in future (JSON structure, versioned)
+10. Preference storage handles localStorage quota limits gracefully (handles storage full scenarios)
+
+### Story 3.2: Onboarding Flow for Difficulty Preference
+
+**As a** user,  
+**I want** to quickly set my initial difficulty preference when I first use the app,  
+**so that** the content I receive matches my comprehension level from the start.
+
+**Acceptance Criteria:**
+
+1. Simple onboarding flow implemented (maximum 2-3 screens, completable in under 30 seconds)
+2. Onboarding appears only on first app use (can be skipped, can be accessed later via settings)
+3. Difficulty preference selection screen with clear options (Beginner, Intermediate, Advanced, or specific difficulty scale)
+4. Alternative: System can infer difficulty from first session behavior (optional inference mode)
+5. Difficulty preference explanation provided (what each level means, what type of content to expect)
+6. Onboarding flow saves preference immediately upon selection
+7. Onboarding can be dismissed/skipped (uses default difficulty if skipped)
+8. Onboarding UI is elegant and unobtrusive (doesn't feel like a signup form, feels like quick setup)
+9. Onboarding provides immediate value (first content generated after onboarding uses selected preference)
+10. Onboarding accessible from settings for users who want to change preference later
+
+### Story 3.3: Basic Difficulty Adaptation Logic
+
+**As a** system,  
+**I want** to implement basic adaptation logic that distinguishes between lexical-heavy and discourse-heavy content,  
+**so that** I can select content appropriate for the user's comprehension level.
+
+**Acceptance Criteria:**
+
+1. Difficulty classification system implemented (lexical-heavy vs. discourse-heavy content classification)
+2. Lexical-heavy content defined (simpler vocabulary, explicit reference, straightforward sentence structure)
+3. Discourse-heavy content defined (complex syntax, implicit reference, advanced linguistic structures)
+4. Content generation prompts modified to accept difficulty parameters (tells AI to generate at specific difficulty level)
+5. Difficulty selection logic implemented (maps user preference to difficulty parameters for content generation)
+6. Content generation service filters/selects templates based on difficulty (or adjusts generation prompts)
+7. Difficulty metadata tracked on all generated content (stores difficulty level with content)
+8. Adaptation logic can be extended in future (modular design, easy to add more sophisticated adaptation)
+9. System can generate content at user's preferred difficulty level on-demand
+10. Difficulty adaptation works seamlessly with content generation pipeline from Epic 2
+
+### Story 3.4: User Preference Integration with Content Generation
+
+**As a** system,  
+**I want** to integrate user preferences with content generation to personalize content selection,  
+**so that** generated content matches user's difficulty preference and any other configured preferences.
+
+**Acceptance Criteria:**
+
+1. User preference system integrated with content generation pipeline (preferences passed to generation service)
+2. Content generation requests include user difficulty preference from localStorage (affects template selection or prompt parameters)
+3. Generated content respects user's difficulty setting (lexical-heavy for lower difficulty, discourse-heavy for higher)
+4. Preference changes immediately affect new content generation (real-time preference application)
+5. Content generation API accepts preference context (preferences sent with each generation request from frontend)
+6. User preferences retrieved from localStorage and included in generation requests
+7. Preference integration maintains generation performance (doesn't slow down content generation)
+8. System gracefully handles missing preferences (uses sensible defaults when localStorage is empty)
+9. Content generation logs include preference data for future analytics (preference → content quality correlation)
+10. Preference integration works seamlessly with existing scrolling feed and generation pipeline
+
+### Story 3.5: Settings & Preference Management UI
+
+**As a** user,  
+**I want** to access and modify my preferences through a simple settings interface,  
+**so that** I can adjust my experience as my comprehension improves or preferences change.
+
+**Acceptance Criteria:**
+
+1. Settings screen/interface implemented (accessible but not prominent, minimalist design)
+2. Difficulty preference can be changed in settings (updates immediately, affects new content)
+3. Settings UI matches overall app aesthetic (lean-back, elegant, not overwhelming)
+4. Settings accessible from main interface (unobtrusive menu or button)
+5. Preference changes save automatically (no explicit save button required)
+6. Visual feedback confirms preference changes (subtle confirmation, smooth transitions)
+7. Settings accessible to all users (no authentication required, works with localStorage preferences)
+8. Settings screen explains what each preference does (clear, concise descriptions)
+9. Settings UI designed for extensibility (easy to add new preference types in future)
+10. Settings don't interrupt listening experience (can be accessed without stopping playback)
+
+---
+
+## Epic 4: Behavioral Tracking & Learner Model
+
+**Epic Goal:**
+
+Implement passive behavioral signal collection that tracks user listening patterns without requiring explicit input. Build an analytics service that collects behavioral events (listening duration, completion rates, pauses, replays, skips) and integrates with the like engagement system from Epic 2. Create a learner model service that infers comprehension patterns from behavioral signals and like data. Develop session-based adaptation logic that adjusts content selection (templates, formats, genres) based on behavioral signals and engagement patterns. Integrate the adaptation system with content generation from Epic 2 to deliver personalized content that evolves based on user behavior. The epic completes the MVP adaptation system, enabling automatic content personalization without explicit user configuration.
+
+### Story 4.1: Passive Behavioral Signal Collection
+
+**As a** system,  
+**I want** to passively track user listening behavior without requiring explicit user input,  
+**so that** I can collect behavioral signals that indicate comprehension and engagement for adaptation.
+
+**Acceptance Criteria:**
+
+1. Listening duration tracking implemented (total time spent listening to each content item)
+2. Content completion rate tracking (whether user listened to full content or abandoned early)
+3. Pause event tracking (when user pauses playback, pause duration, pause frequency)
+4. Replay event tracking (when user replays segments, which segments, how many times)
+5. Skip event tracking (when user skips forward or backward, skip patterns)
+6. Abandonment point tracking (where in content user stops listening if they don't complete)
+7. All behavioral tracking is passive and invisible to user (no explicit feedback required, no interruptions)
+8. Behavioral events collected in real-time during playback (events tracked as they occur)
+9. Behavioral data stored in session storage during active session (immediate availability for adaptation)
+10. Behavioral data aggregated and stored in localStorage after session (persists across sessions for learning)
+11. Event data structure includes content characteristics (format, genre, difficulty, template ID) for pattern analysis
+12. Behavioral tracking works seamlessly with audio playback (doesn't impact performance or user experience)
+
+### Story 4.2: Analytics Service for Behavioral Event Processing
+
+**As a** system,  
+**I want** to process and analyze behavioral events to extract meaningful engagement and comprehension patterns,  
+**so that** I can provide insights for the learner model and adaptation logic.
+
+**Acceptance Criteria:**
+
+1. Analytics service implemented to process behavioral events (aggregates, analyzes, patterns)
+2. Event aggregation logic implemented (groups events by content characteristics, calculates metrics)
+3. Engagement metrics calculated per content type (completion rates, average listening duration by format/genre/difficulty)
+4. Skip pattern analysis implemented (identifies which content types/formats/genres users skip most)
+5. Replay pattern analysis implemented (identifies content that users replay frequently, indicating difficulty or interest)
+6. Like data integrated with behavioral analysis (combines like signals with listening behavior for comprehensive engagement view)
+7. Content performance metrics tracked (which templates, formats, genres perform best based on behavior + likes)
+8. Analytics service stores processed data in localStorage (aggregated metrics, patterns, trends)
+9. Analytics data structure designed for learner model consumption (easy to query for adaptation decisions)
+10. Analytics processing runs in background (doesn't block user experience, processes asynchronously)
+11. Analytics service handles session-based and cross-session data (combines current session with historical patterns)
+
+### Story 4.3: Learner Model Service with Basic Comprehension Inference
+
+**As a** system,  
+**I want** to infer user comprehension and preferences from behavioral signals and engagement data,  
+**so that** I can maintain a learner model that guides content adaptation decisions.
+
+**Acceptance Criteria:**
+
+1. Learner model service implemented that processes behavioral signals and like data
+2. Basic comprehension inference logic implemented (high completion + likes = good match, high skips = poor match)
+3. Content preference model tracks which content types user engages with positively (formats, genres, templates based on behavior + likes)
+4. Content avoidance model tracks which content types user avoids or disengages from (consistent skips, low completion, no likes)
+5. Difficulty adjustment logic implemented (adjusts difficulty preferences based on completion rates and engagement)
+6. Learner model stores preference weights in localStorage (preference scores for different content characteristics)
+7. Learner model updates incrementally based on new behavioral data (weights adjust as more data collected)
+8. Model maintains separate preferences for different content dimensions (format preferences, genre preferences, difficulty preferences)
+9. Learner model provides recommendations for content selection (suggests templates, formats, genres based on model)
+10. Model gracefully handles sparse data (works with limited behavioral history, uses defaults until sufficient data)
+11. Learner model data structure allows for future enhancement (ready for more sophisticated ML/AI approaches)
+
+### Story 4.4: Behavioral-Based Adaptation Logic
+
+**As a** system,  
+**I want** to adjust content selection based on behavioral signals and learner model insights,  
+**so that** I can automatically personalize content generation to match user preferences without explicit configuration.
+
+**Acceptance Criteria:**
+
+1. Adaptation logic implemented that uses learner model recommendations for content selection
+2. Template selection influenced by behavioral signals (prefers templates user engages with, avoids those user skips)
+3. Format selection influenced by engagement patterns (increases probability of liked formats, decreases skipped formats)
+4. Genre selection influenced by completion rates and likes (prefers genres with high engagement, reduces low-engagement genres)
+5. Difficulty adjustment based on completion patterns (adjusts difficulty if user consistently completes or abandons content)
+6. Adaptation logic integrates like data from Epic 2 (likes have significant weight in preference calculation)
+7. Adaptation maintains minimum diversity threshold (doesn't eliminate all variety, ensures some content diversity)
+8. Adaptation weights behavioral signals appropriately (completion > likes > skip patterns in decision making)
+9. Adaptation decisions stored and logged (tracks what adaptations were made and why, for future analysis)
+10. Adaptation logic updates in real-time as new behavioral data arrives (adapts within session, not just between sessions)
+11. Adaptation system designed for extensibility (easy to add new signals, adjust weights, enhance logic)
+
+### Story 4.5: Adaptation Integration with Content Generation
+
+**As a** system,  
+**I want** to integrate the adaptation system with content generation to automatically apply personalized content selection,  
+**so that** generated content reflects user's behavioral patterns and preferences without requiring manual configuration.
+
+**Acceptance Criteria:**
+
+1. Adaptation system integrated with content generation pipeline from Epic 2 (adaptation recommendations passed to generation)
+2. Content generation requests include adaptation signals (template preferences, format preferences, genre preferences, difficulty adjustments)
+3. Content generation service uses adaptation signals to influence template/format/genre selection
+4. Generated content characteristics aligned with adaptation recommendations (content matches user's inferred preferences)
+5. Adaptation signals updated based on latest behavioral data before each generation request (real-time adaptation)
+6. Like data from Epic 2 integrated into adaptation decisions (likes influence immediate next content generation)
+7. Adaptation works seamlessly with scrolling feed (forward scroll uses adapted preferences, backward scroll unaffected)
+8. Adaptation integration maintains generation performance (doesn't slow down content generation process)
+9. System handles adaptation gracefully when behavioral data is sparse (uses user preferences as fallback, then defaults)
+10. Adaptation logs tracked for analysis (records what adaptations were applied, user response to adapted content)
+11. Adaptation system improves over time as more behavioral data accumulates (learning gets better with more signals)
+
+### Story 4.6: Behavioral Analytics Dashboard (Optional/Developer View)
+
+**As a** developer/system,  
+**I want** to view behavioral analytics and adaptation insights for development and optimization purposes,  
+**so that** I can understand how the adaptation system is performing and optimize content generation.
+
+**Acceptance Criteria:**
+
+1. Basic analytics dashboard/interface implemented (accessible to developers, hidden from regular users)
+2. Dashboard displays aggregated behavioral metrics (completion rates, skip patterns, like patterns)
+3. Dashboard shows learner model state (current preferences, weights, recommendations)
+4. Dashboard displays adaptation decisions and outcomes (what adaptations were made, user response)
+5. Dashboard visualizes content performance (which templates/formats/genres perform best)
+6. Dashboard accessible via developer mode or admin interface (not part of regular user experience)
+7. Analytics data exportable for further analysis (JSON or CSV export of behavioral data)
+8. Dashboard helps identify content generation optimization opportunities (data-driven insights for improvement)
+9. Dashboard designed for future enhancement (can add more visualizations, metrics as needed)
+
+---

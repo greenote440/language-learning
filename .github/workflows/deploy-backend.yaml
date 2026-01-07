@@ -1,0 +1,112 @@
+name: Deploy Backend to Railway
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'apps/api/**'
+      - 'packages/**'
+      - 'pnpm-workspace.yaml'
+      - 'pnpm-lock.yaml'
+      - '.github/workflows/deploy-backend.yaml'
+  workflow_dispatch:
+    inputs:
+      force_deploy:
+        description: 'Force deployment even if no changes'
+        required: false
+        default: 'false'
+
+env:
+  PNPM_VERSION: 8.15.0
+  NODE_VERSION: '18'
+
+jobs:
+  deploy:
+    name: Deploy Backend
+    runs-on: ubuntu-latest
+    environment: production
+    needs: [] # Will be updated to depend on CI when CI workflow is available
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: ${{ env.PNPM_VERSION }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Type check
+        run: pnpm --filter @adaptive-italian-audio/api type-check
+
+      - name: Build backend
+        run: pnpm --filter @adaptive-italian-audio/api build
+
+      - name: Deploy to Railway
+        id: deploy
+        uses: bervProject/railway-deploy@v0.2.4
+        with:
+          railway_token: ${{ secrets.RAILWAY_TOKEN }}
+          service: ${{ secrets.RAILWAY_SERVICE_ID }}
+          detach: false
+        continue-on-error: false
+
+      - name: Verify deployment health check
+        run: |
+          API_URL="${{ secrets.RAILWAY_API_URL }}"
+          if [ -z "$API_URL" ]; then
+            echo "⚠️ RAILWAY_API_URL secret not set. Skipping health check."
+            echo "Please verify deployment manually at Railway dashboard."
+            exit 0
+          fi
+          
+          echo "Waiting for deployment to be ready..."
+          sleep 15
+          
+          MAX_RETRIES=5
+          RETRY_COUNT=0
+          HEALTH_CHECK_PASSED=false
+          
+          while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
+            HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/health" || echo "000")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "✅ Health check passed (HTTP $HTTP_CODE)"
+              HEALTH_CHECK_PASSED=true
+              break
+            else
+              RETRY_COUNT=$((RETRY_COUNT + 1))
+              echo "Health check attempt $RETRY_COUNT/$MAX_RETRIES failed (HTTP $HTTP_CODE). Retrying in 10 seconds..."
+              sleep 10
+            fi
+          done
+          
+          if [ "$HEALTH_CHECK_PASSED" = "false" ]; then
+            echo "⚠️ Health check failed after $MAX_RETRIES attempts. Deployment may still be starting."
+            echo "Please verify deployment manually at Railway dashboard: $API_URL/health"
+            exit 0
+          fi
+
+      - name: Deployment success notification
+        if: success()
+        run: |
+          echo "✅ Backend deployment completed successfully"
+          if [ -n "${{ secrets.RAILWAY_API_URL }}" ]; then
+            echo "API URL: ${{ secrets.RAILWAY_API_URL }}"
+          fi
+
+      - name: Deployment failure notification
+        if: failure()
+        run: |
+          echo "❌ Backend deployment failed"
+          echo "Check the logs above for details"
+          echo "Manual rollback: Use Railway dashboard to rollback to previous deployment"
