@@ -9,6 +9,7 @@ interface SessionContextType {
   setCurrentContentId: (contentId: string | null) => void;
   getNextContentId: () => string | null;
   getPreviousContentId: () => string | null;
+  clearSession: () => void; // Clear all content IDs and current content
   // Persistence
   loadFromStorage: () => void;
   saveToStorage: () => void;
@@ -61,8 +62,26 @@ export const SessionProvider = ({ children }: SessionProviderProps) => {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const data = JSON.parse(stored);
-        setContentIds(data.contentIds || []);
-        setCurrentContentId(data.currentContentId || null);
+        // Filter out old mock content IDs (starting with 'mock-')
+        const validContentIds = (data.contentIds || []).filter((id: string) => !id.startsWith('mock-'));
+        
+        // Always check and fix currentContentId if it's a mock ID
+        let currentId = data.currentContentId || null;
+        if (currentId && currentId.startsWith('mock-')) {
+          console.log('Resetting mock currentContentId:', currentId);
+          currentId = validContentIds.length > 0 ? validContentIds[0] : null;
+        }
+        
+        // If we filtered out mock IDs or fixed currentContentId, update storage
+        if (validContentIds.length !== (data.contentIds || []).length || 
+            (currentId !== data.currentContentId && data.currentContentId?.startsWith('mock-'))) {
+          console.log('Cleaned up mock data from session');
+          setContentIds(validContentIds);
+          setCurrentContentId(currentId);
+        } else {
+          setContentIds(validContentIds);
+          setCurrentContentId(currentId);
+        }
       }
     } catch (error) {
       console.error('Failed to load session from storage:', error);
@@ -113,6 +132,15 @@ export const SessionProvider = ({ children }: SessionProviderProps) => {
     return contentIds[currentIndex - 1];
   };
 
+  const clearSession = () => {
+    setContentIds([]);
+    setCurrentContentId(null);
+    // Also clear from localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(STORAGE_KEY);
+    }
+  };
+
   const value: SessionContextType = {
     sessionId,
     contentIds,
@@ -121,6 +149,7 @@ export const SessionProvider = ({ children }: SessionProviderProps) => {
     setCurrentContentId,
     getNextContentId,
     getPreviousContentId,
+    clearSession,
     loadFromStorage,
     saveToStorage,
   };

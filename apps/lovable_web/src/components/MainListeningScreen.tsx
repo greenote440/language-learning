@@ -396,7 +396,23 @@ const MainListeningScreen = ({
   }, []);
 
   // Determine which content is currently active (in view)
-  const activeContentId = session.currentContentId || contentItems[0]?.id || null;
+  // Filter out mock content IDs
+  const validCurrentContentId = session.currentContentId && !session.currentContentId.startsWith('mock-')
+    ? session.currentContentId
+    : null;
+  const activeContentId = validCurrentContentId || contentItems[0]?.id || null;
+  
+  // If currentContentId is a mock ID, reset it
+  useEffect(() => {
+    if (session.currentContentId && session.currentContentId.startsWith('mock-')) {
+      console.log('Resetting mock currentContentId in MainListeningScreen');
+      if (contentItems.length > 0) {
+        session.setCurrentContentId(contentItems[0].id);
+      } else {
+        session.setCurrentContentId(null);
+      }
+    }
+  }, [session.currentContentId, contentItems, session]);
 
   return (
     <div className="relative h-screen w-full overflow-hidden">

@@ -1,9 +1,9 @@
 import { Router, Request, Response } from 'express';
-import { ModelService, createModelService } from '@adaptive-italian-audio/model-service';
+import { ModelService } from '@adaptive-italian-audio/model-service';
 import { BehavioralEvent, LikeEngagement, UserPreferences } from '@adaptive-italian-audio/model-service';
 
 const router = Router();
-const modelService: ModelService = createModelService();
+const modelService: ModelService = new ModelService();
 
 /**
  * POST /api/model/adaptation

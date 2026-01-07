@@ -359,6 +359,7 @@ For more details, see [docs/deployment-env-template.md](docs/deployment-env-temp
 - **[Stories](docs/stories/)** - Development stories and implementation tracking
 - **[Tech Stack](docs/architecture/tech-stack.md)** - Technology choices and versions
 - **[Project Structure](docs/architecture/unified-project-structure.md)** - Detailed directory structure
+- **[API Integration Guide](docs/api-integration-guide.md)** - Setup, validation, and troubleshooting for external APIs
 
 ## Package Organization
 

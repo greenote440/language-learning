@@ -15,7 +15,31 @@ config({ path: path.join(projectRoot, '.env') });
 import { S3Client, HeadBucketCommand } from '@aws-sdk/client-s3';
 import { TextToSpeechClient } from '@google-cloud/text-to-speech';
 import * as fs from 'fs';
-import * as path from 'path';
+
+function formatAwsError(err: unknown): string {
+  if (!(err instanceof Error)) return String(err);
+  const anyErr = err as any;
+  const meta = anyErr?.$metadata
+    ? {
+        httpStatusCode: anyErr.$metadata.httpStatusCode,
+        requestId: anyErr.$metadata.requestId,
+        extendedRequestId: anyErr.$metadata.extendedRequestId,
+        cfId: anyErr.$metadata.cfId,
+      }
+    : undefined;
+  return JSON.stringify(
+    {
+      name: anyErr?.name ?? err.name,
+      message: err.message,
+      code: anyErr?.Code ?? anyErr?.code,
+      region: anyErr?.Region ?? anyErr?.region,
+      bucketRegion: anyErr?.BucketRegion ?? anyErr?.bucketRegion,
+      metadata: meta,
+    },
+    null,
+    2,
+  );
+}
 
 interface TestResult {
   service: string;
@@ -49,7 +73,7 @@ async function testGeminiAPI(): Promise<TestResult> {
     let modelName = 'gemini-1.5-pro';
     
     if (listResponse.ok) {
-      const modelsData = await listResponse.json();
+      const modelsData = (await listResponse.json()) as any;
       // Find first gemini model that supports generateContent
       const availableModel = modelsData.models?.find((m: any) => 
         m.name?.includes('gemini') && 
@@ -92,7 +116,7 @@ async function testGeminiAPI(): Promise<TestResult> {
       };
     }
 
-    const data = await response.json();
+    const data = (await response.json()) as any;
     
     if (data.candidates && data.candidates[0]?.content?.parts) {
       return {
@@ -233,7 +257,7 @@ async function testAWSS3(): Promise<TestResult> {
       service: 'AWS S3',
       success: false,
       message: 'Failed to access S3',
-      error: error instanceof Error ? error.message : String(error),
+      error: formatAwsError(error),
     };
   }
 }

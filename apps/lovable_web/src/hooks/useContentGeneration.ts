@@ -60,13 +60,44 @@ export const useContentGeneration = (options: UseContentGenerationOptions = {}):
       // Start generation
       const generationResponse = await contentService.generateContent(request);
       
+      // Check if content is already available in response (MVP synchronous generation)
+      const responseWithContent = generationResponse as ContentGenerationResponse & { content?: Content };
+      if (responseWithContent.content && generationResponse.status === 'completed') {
+        // Content is already available, use it directly
+        const content = responseWithContent.content;
+        
+        // Convert API Content to context Content format
+        const contextContent = {
+          id: content.id,
+          title: content.title,
+          subtitle: content.description,
+          audioUrl: content.audioUrl,
+          duration: content.duration,
+          format: content.format,
+        };
+
+        // Add to contexts
+        contentContext.addContent(contextContent);
+        session.addContentId(content.id);
+        session.setCurrentContentId(content.id);
+
+        // Load into audio player with auto-play
+        audioPlayer.loadContent(contextContent, true);
+
+        setStatus('completed');
+        onStatusUpdate?.('completed');
+        onSuccess?.(content);
+
+        return content;
+      }
+      
       // Update status based on response
       if (generationResponse.status === 'processing') {
         setStatus('processing');
         onStatusUpdate?.('processing');
       }
 
-      // Poll until complete
+      // Poll until complete (for async generation)
       const content = await contentService.pollUntilComplete(
         generationResponse.generationId,
         {

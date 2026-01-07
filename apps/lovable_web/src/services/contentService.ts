@@ -53,22 +53,14 @@ export interface Content {
 }
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
-const USE_MOCK_DATA = import.meta.env.VITE_USE_MOCK_DATA === 'true' || !import.meta.env.VITE_API_BASE_URL;
-
-// Import mock service
-import { mockContentService } from './mockContentService';
 
 class ContentService {
   /**
    * Generate new content
    */
   async generateContent(request: ContentGenerationRequest): Promise<ContentGenerationResponse> {
-    // Use mock service if enabled
-    if (USE_MOCK_DATA && mockContentService) {
-      return mockContentService.generateContent(request);
-    }
-    
-    const response = await fetch(`${API_BASE_URL}/api/content/generate`, {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/content/generate`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -91,21 +83,35 @@ class ContentService {
     }
 
     if (response.status === 202) {
-      return await response.json();
+      const data = await response.json();
+      // For MVP, the API returns content directly in the response
+      // If content is present, return it in the response format
+      if (data.content) {
+        return {
+          generationId: data.generationId || data.content.id,
+          status: data.status || 'completed',
+          estimatedCompletionTime: data.estimatedCompletionTime,
+          webhookRegistered: data.webhookRegistered,
+          content: data.content, // Include content for immediate use
+        } as ContentGenerationResponse & { content?: Content };
+      }
+      return data;
     }
 
     throw new Error(`Unexpected response status: ${response.status}`);
+    } catch (error) {
+      // Handle network errors (connection refused, etc.)
+      if (error instanceof TypeError && error.message.includes('fetch')) {
+        throw new Error(`Cannot connect to API server at ${API_BASE_URL}. Please ensure the backend server is running.`);
+      }
+      throw error;
+    }
   }
 
   /**
    * Poll generation status
    */
   async getGenerationStatus(generationId: string): Promise<GenerationStatusResponse> {
-    // Use mock service if enabled
-    if (USE_MOCK_DATA && mockContentService) {
-      return mockContentService.getGenerationStatus(generationId);
-    }
-    
     const response = await fetch(`${API_BASE_URL}/api/content/${generationId}/status`, {
       method: 'GET',
       headers: {
@@ -127,11 +133,6 @@ class ContentService {
    * Get content by ID
    */
   async getContent(contentId: string): Promise<Content> {
-    // Use mock service if enabled
-    if (USE_MOCK_DATA && mockContentService) {
-      return mockContentService.getContent(contentId);
-    }
-    
     const response = await fetch(`${API_BASE_URL}/api/content/${contentId}`, {
       method: 'GET',
       headers: {
@@ -161,11 +162,6 @@ class ContentService {
       onStatusUpdate?: (status: GenerationStatusResponse) => void;
     } = {}
   ): Promise<Content> {
-    // Use mock service if enabled
-    if (USE_MOCK_DATA && mockContentService) {
-      return mockContentService.pollUntilComplete(generationId, options);
-    }
-    
     const {
       pollInterval = 2000, // 2 seconds default
       maxDuration = 30000, // 30 seconds default
