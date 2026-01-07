@@ -4,6 +4,9 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { lazy, Suspense } from "react";
 // Import Index directly - it's the main page, should be in initial bundle
 import Index from "./pages/Index";
+import { AudioPlayerProvider } from "./contexts/AudioPlayerContext";
+import { ContentProvider } from "./contexts/ContentContext";
+import { SessionProvider } from "./contexts/SessionContext";
 
 // Optimize QueryClient for performance - reduce unnecessary refetches
 const queryClient = new QueryClient({
@@ -38,41 +41,47 @@ const LoadingFallback = () => (
 const App = () => (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <Suspense fallback={null}>
-          <Toaster />
-          <Sonner />
-        </Suspense>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-          {/* Placeholder routes for future stories */}
-          <Route
-            path="/settings"
-            element={
-              <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
-                <Settings />
+        <SessionProvider>
+          <ContentProvider>
+            <AudioPlayerProvider>
+              <Suspense fallback={null}>
+                <Toaster />
+                <Sonner />
               </Suspense>
-            }
-          />
-          <Route
-            path="/about"
-            element={
-              <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
-                <About />
-              </Suspense>
-            }
-          />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route
-            path="*"
-            element={
-              <Suspense fallback={<LoadingFallback />}>
-                <NotFound />
-              </Suspense>
-            }
-          />
-          </Routes>
-        </BrowserRouter>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Index />} />
+                {/* Placeholder routes for future stories */}
+                <Route
+                  path="/settings"
+                  element={
+                    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+                      <Settings />
+                    </Suspense>
+                  }
+                />
+                <Route
+                  path="/about"
+                  element={
+                    <Suspense fallback={<div className="flex min-h-screen items-center justify-center">Loading...</div>}>
+                      <About />
+                    </Suspense>
+                  }
+                />
+                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                <Route
+                  path="*"
+                  element={
+                    <Suspense fallback={<LoadingFallback />}>
+                      <NotFound />
+                    </Suspense>
+                  }
+                />
+                </Routes>
+              </BrowserRouter>
+            </AudioPlayerProvider>
+          </ContentProvider>
+        </SessionProvider>
       </TooltipProvider>
     </QueryClientProvider>
 );
