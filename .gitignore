@@ -26,6 +26,9 @@ lerna-debug.log*
 .env.*.local
 .env.production
 .env.development
+apps/.env
+apps/api/.env
+apps/lovable_web/.env
 
 # Testing
 coverage/
