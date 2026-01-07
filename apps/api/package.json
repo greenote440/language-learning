@@ -16,6 +16,7 @@
     "test:external": "tsx src/scripts/test-external-services.ts"
   },
   "dependencies": {
+    "@adaptive-italian-audio/model-service": "workspace:*",
     "@aws-sdk/client-s3": "^3.490.0",
     "@google-cloud/text-to-speech": "^5.0.0",
     "dotenv": "^16.3.1",

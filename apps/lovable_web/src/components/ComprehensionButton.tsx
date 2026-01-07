@@ -19,7 +19,7 @@ const ComprehensionButton = ({ onSelect, initialPercentage = null }: Comprehensi
   };
 
   return (
-    <div className="relative">
+    <div className="relative inline-block">
       <button
         onClick={() => setIsOpen(!isOpen)}
         className={`flex items-center justify-center gap-2 h-12 px-4 rounded-full transition-all duration-200 
@@ -35,13 +35,13 @@ const ComprehensionButton = ({ onSelect, initialPercentage = null }: Comprehensi
       </button>
 
       {isOpen && (
-        <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-3 animate-fade-in">
-          <div className="bg-card rounded-2xl shadow-elevated p-2 flex gap-1">
+        <div className="absolute left-full top-1/2 -translate-y-1/2 ml-3 animate-fade-in z-50">
+          <div className="bg-card rounded-lg shadow-elevated p-2 flex gap-1 border border-border">
             {percentageOptions.map((option) => (
               <button
                 key={option}
                 onClick={() => handleSelect(option)}
-                className={`w-12 h-12 rounded-xl text-sm font-medium transition-all duration-200
+                className={`w-12 h-12 rounded-lg text-sm font-medium transition-all duration-200
                   ${percentage === option 
                     ? 'bg-primary text-primary-foreground' 
                     : 'hover:bg-muted text-foreground'
@@ -51,7 +51,6 @@ const ComprehensionButton = ({ onSelect, initialPercentage = null }: Comprehensi
               </button>
             ))}
           </div>
-          <div className="absolute left-1/2 -translate-x-1/2 -bottom-2 w-4 h-4 bg-card rotate-45 shadow-sm" />
         </div>
       )}
     </div>

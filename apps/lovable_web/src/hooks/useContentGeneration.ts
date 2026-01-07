@@ -76,7 +76,6 @@ export const useContentGeneration = (options: UseContentGenerationOptions = {}):
             setStatus(statusResponse.status);
             onStatusUpdate?.(statusResponse.status);
           },
-          request, // Pass request for mock mode
         }
       );
 

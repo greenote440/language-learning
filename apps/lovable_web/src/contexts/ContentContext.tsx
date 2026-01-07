@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode } from 'react';
 
 // Simplified Content interface for MVP
 export interface Content {
@@ -26,34 +26,9 @@ interface ContentProviderProps {
   children: ReactNode;
 }
 
-const STORAGE_KEY = 'italian-audio-content';
-
 export const ContentProvider = ({ children }: ContentProviderProps) => {
-  // Load content from localStorage on mount
-  const [content, setContent] = useState<Content[]>(() => {
-    if (typeof window === 'undefined') return [];
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) {
-        return JSON.parse(stored);
-      }
-    } catch (error) {
-      console.error('Failed to load content from storage:', error);
-    }
-    return [];
-  });
-  
+  const [content, setContent] = useState<Content[]>([]);
   const [currentContentId, setCurrentContentId] = useState<string | null>(null);
-
-  // Save content to localStorage whenever it changes
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(content));
-    } catch (error) {
-      console.error('Failed to save content to storage:', error);
-    }
-  }, [content]);
 
   const getContent = (contentId: string): Content | undefined => {
     return content.find((c) => c.id === contentId);

@@ -16,16 +16,23 @@ const formatTime = (seconds: number): string => {
 };
 
 const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPlayerProps) => {
+  // Determine if we're using props (independent mode) or context (shared mode)
+  const isIndependentMode = !!propAudioUrl;
+  
   // Try to use context, but fall back to props for backward compatibility
   let audioPlayerContext;
-  try {
-    audioPlayerContext = useAudioPlayer();
-  } catch {
-    audioPlayerContext = null;
+  if (!isIndependentMode) {
+    try {
+      audioPlayerContext = useAudioPlayer();
+    } catch {
+      audioPlayerContext = null;
+    }
+  } else {
+    audioPlayerContext = null; // Don't use context in independent mode
   }
 
-  // Use context audioUrl if available, otherwise use prop
-  const audioUrl = audioPlayerContext?.getCurrentAudioUrl() || propAudioUrl;
+  // Prioritize prop if explicitly provided, otherwise use context
+  const audioUrl = propAudioUrl || audioPlayerContext?.getCurrentAudioUrl();
   
   const audioRef = useRef<HTMLAudioElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -36,19 +43,19 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
   const [buffering, setBuffering] = useState(false);
   const actionTimestampRef = useRef<number>(0);
 
-  // Sync with context state if available
+  // Only sync with context state if NOT in independent mode
   useEffect(() => {
-    if (audioPlayerContext) {
+    if (!isIndependentMode && audioPlayerContext) {
       setIsPlaying(audioPlayerContext.state.isPlaying);
       setCurrentTime(audioPlayerContext.state.currentTime);
       setDuration(audioPlayerContext.state.duration);
     }
-  }, [audioPlayerContext?.state.isPlaying, audioPlayerContext?.state.currentTime, audioPlayerContext?.state.duration]);
+  }, [isIndependentMode, audioPlayerContext?.state.isPlaying, audioPlayerContext?.state.currentTime, audioPlayerContext?.state.duration]);
 
   // Reset state when audioUrl changes
   useEffect(() => {
     if (!audioUrl) {
-      setIsLoading(false); // Don't show loading if no audio URL (mock mode)
+      setIsLoading(true);
       setError(null);
       setIsPlaying(false);
       setCurrentTime(0);
@@ -68,43 +75,36 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
     audio.load();
   }, [audioUrl]);
 
-  // Sync audio element with context playback state
+  // Sync audio element with context playback state (only if not in independent mode)
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !audioPlayerContext) return;
+    if (!audio || isIndependentMode || !audioPlayerContext) return;
 
     if (audioPlayerContext.state.isPlaying && !isPlaying) {
       audio.play().catch((err: Error) => {
-        // Handle browser auto-play policy rejection (expected behavior)
+        console.error('Failed to play audio:', err);
+        // Handle browser auto-play policy rejection
         if (err.name === 'NotAllowedError' || err.message?.includes('play')) {
-          // This is expected - browsers block autoplay without user interaction
-          // Only log in development, and as info not error
-          if (process.env.NODE_ENV === 'development') {
-            console.log('Autoplay blocked by browser policy (expected):', err.message);
-          }
           audioPlayerContext.setAutoPlayBlocked(true);
           // Update context state to reflect that play failed
           audioPlayerContext.pause();
-        } else {
-          // Other errors should still be logged
-          console.error('Failed to play audio:', err);
         }
       });
     } else if (!audioPlayerContext.state.isPlaying && isPlaying) {
       audio.pause();
     }
-  }, [audioPlayerContext?.state.isPlaying, isPlaying, audioPlayerContext]);
+  }, [isIndependentMode, audioPlayerContext?.state.isPlaying, isPlaying, audioPlayerContext]);
 
-  // Sync audio element currentTime with context
+  // Sync audio element currentTime with context (only if not in independent mode)
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !audioPlayerContext) return;
+    if (!audio || isIndependentMode || !audioPlayerContext) return;
 
     const contextTime = audioPlayerContext.state.currentTime;
     if (Math.abs(audio.currentTime - contextTime) > 0.5) {
       audio.currentTime = contextTime;
     }
-  }, [audioPlayerContext?.state.currentTime]);
+  }, [isIndependentMode, audioPlayerContext?.state.currentTime]);
 
   useEffect(() => {
     const audio = audioRef.current;
@@ -115,8 +115,10 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
       const dur = audio.duration;
       if (isFinite(time) && !isNaN(time)) {
         setCurrentTime(time);
-        // Update context if available
-        audioPlayerContext?.updateTime(time, dur);
+        // Update context if available and not in independent mode
+        if (!isIndependentMode && audioPlayerContext) {
+          audioPlayerContext.updateTime(time, dur);
+        }
         onTimeUpdate?.(time, dur);
       }
     };
@@ -151,39 +153,58 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
       }
     };
 
+    const handlePlay = () => {
+      setIsPlaying(true);
+      setBuffering(false);
+    };
+
+    const handlePause = () => {
+      setIsPlaying(false);
+    };
+
     const handlePlaying = () => {
       setBuffering(false);
+      // Ensure isPlaying is true when actually playing
+      if (!isPlaying) {
+        setIsPlaying(true);
+      }
     };
 
     const handleEnded = () => {
       setIsPlaying(false);
       setCurrentTime(0);
-      // Update context if available
-      audioPlayerContext?.handleEnded();
+      // Update context if available and not in independent mode
+      if (!isIndependentMode && audioPlayerContext) {
+        audioPlayerContext.handleEnded();
+      }
       onEnded?.();
     };
 
     const handleError = () => {
       const audioError = audio.error;
       if (audioError) {
+        console.error('Audio error occurred:', {
+          code: audioError.code,
+          message: audioError.message,
+          url: audioUrl,
+          networkState: audio.networkState,
+          readyState: audio.readyState,
+        });
+        
         let errorMessage = "Errore di riproduzione";
         switch (audioError.code) {
           case MediaError.MEDIA_ERR_ABORTED:
             errorMessage = "Riproduzione interrotta";
             break;
           case MediaError.MEDIA_ERR_NETWORK:
-            errorMessage = "Errore di rete";
+            errorMessage = "Errore di rete - verifica la connessione";
             break;
           case MediaError.MEDIA_ERR_DECODE:
-            errorMessage = "Errore di decodifica";
+            errorMessage = "Errore di decodifica del file audio";
             break;
           case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            // In mock mode, audio might not be available - show a friendly message
-            if (process.env.NODE_ENV === 'development' && audioUrl?.includes('soundhelix')) {
-              errorMessage = "Modalità test: audio non disponibile";
-            } else {
-              errorMessage = "Formato audio non supportato";
-            }
+            errorMessage = "Formato audio non supportato o URL non valido";
+            console.error('URL non supportato:', audioUrl);
             break;
         }
         setError(errorMessage);
@@ -209,6 +230,8 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
     audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('canplaythrough', handleCanPlayThrough);
     audio.addEventListener('waiting', handleWaiting);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
     audio.addEventListener('playing', handlePlaying);
     audio.addEventListener('ended', handleEnded);
     audio.addEventListener('error', handleError);
@@ -222,20 +245,22 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
       audio.removeEventListener('canplay', handleCanPlay);
       audio.removeEventListener('canplaythrough', handleCanPlayThrough);
       audio.removeEventListener('waiting', handleWaiting);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
       audio.removeEventListener('playing', handlePlaying);
       audio.removeEventListener('ended', handleEnded);
       audio.removeEventListener('error', handleError);
       audio.removeEventListener('stalled', handleStalled);
       audio.removeEventListener('suspend', handleSuspend);
     };
-  }, [isPlaying, onTimeUpdate, onEnded]);
+  }, [audioUrl, isIndependentMode, audioPlayerContext, onTimeUpdate, onEnded]);
 
   const togglePlay = async () => {
     const audio = audioRef.current;
     if (!audio || !audioUrl) return;
 
-    // Use context method if available, otherwise manage locally
-    if (audioPlayerContext) {
+    // Use context method if available and not in independent mode, otherwise manage locally
+    if (!isIndependentMode && audioPlayerContext) {
       // Clear auto-play blocked state when user manually interacts
       if (audioPlayerContext.autoPlayBlocked) {
         audioPlayerContext.setAutoPlayBlocked(false);
@@ -277,8 +302,8 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
     const audio = audioRef.current;
     if (!audio || !duration) return;
     
-    // Use context method if available
-    if (audioPlayerContext) {
+    // Use context method if available and not in independent mode
+    if (!isIndependentMode && audioPlayerContext) {
       if (seconds > 0) {
         audioPlayerContext.skipForward(seconds);
       } else {
@@ -312,8 +337,8 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
     const percentage = Math.max(0, Math.min(clickX / rect.width, 1));
     const seekTime = percentage * duration;
     
-    // Use context method if available
-    if (audioPlayerContext) {
+    // Use context method if available and not in independent mode
+    if (!isIndependentMode && audioPlayerContext) {
       audioPlayerContext.seek(seekTime);
     }
     
@@ -331,8 +356,8 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
 
   const progress = duration > 0 && isFinite(duration) ? (currentTime / duration) * 100 : 0;
 
-  // Check if auto-play was blocked
-  const autoPlayBlocked = audioPlayerContext?.autoPlayBlocked || false;
+  // Check if auto-play was blocked (only in context mode)
+  const autoPlayBlocked = (!isIndependentMode && audioPlayerContext?.autoPlayBlocked) || false;
 
   return (
     <div className="w-full max-w-md mx-auto">
@@ -340,7 +365,18 @@ const AudioPlayer = ({ audioUrl: propAudioUrl, onTimeUpdate, onEnded }: AudioPla
         ref={audioRef}
         src={audioUrl}
         preload="metadata"
-        crossOrigin="anonymous"
+        onError={(e) => {
+          console.error('Audio loading error:', e);
+          const audio = e.currentTarget;
+          if (audio.error) {
+            console.error('Audio error code:', audio.error.code);
+            console.error('Audio error message:', audio.error.message);
+            console.error('Audio URL:', audioUrl);
+          }
+        }}
+        onLoadedMetadata={() => {
+          console.log('Audio metadata loaded successfully for:', audioUrl);
+        }}
       />
 
       {/* Auto-play Blocked Message */}

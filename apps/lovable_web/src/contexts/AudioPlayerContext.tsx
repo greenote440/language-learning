@@ -5,7 +5,7 @@ import { eventService } from '@/services/eventService';
 interface Content {
   id: string;
   title: string;
-  audioUrl?: string; // Optional for mock mode
+  audioUrl: string;
   duration?: number;
   format?: 'narrative' | 'podcast' | 'educational';
 }
