@@ -10,10 +10,10 @@ Copy these variables and configure values in Vercel (frontend) and Railway (back
 - `VITE_API_URL` - Backend API URL (e.g., `https://api.adaptive-italian-audio.railway.app`)
 - `VITE_APP_NAME` - Application name (e.g., `Adaptive Italian Audio`)
 
-## Backend Environment Variables (Railway)
+## Backend Environment Variables (Render)
 
 ### Database Configuration
-- `DATABASE_URL` - PostgreSQL connection string (Railway provides this automatically if using Railway PostgreSQL)
+- `DATABASE_URL` - PostgreSQL connection string (Render provides this automatically if using Render PostgreSQL, or configure manually)
 
 ### Server Configuration
 - `NODE_ENV` - Environment (set to `production`)
@@ -27,16 +27,20 @@ Copy these variables and configure values in Vercel (frontend) and Railway (back
 - `AWS_S3_BUCKET_NAME` - S3 bucket name
 - `AWS_REGION` - AWS region (e.g., `us-east-1`)
 
-### Redis Configuration (if using Railway Redis)
+### Redis Configuration (if using Render Redis or external Redis)
 - `REDIS_URL` - Redis connection URL
 
 ## GitHub Actions Secrets Required
 
 These secrets must be configured in GitHub repository settings (Settings → Secrets and variables → Actions):
 
-- `VERCEL_TOKEN` - Vercel authentication token
-- `VERCEL_ORG_ID` - Vercel organization ID
-- `VERCEL_PROJECT_ID` - Vercel project ID
-- `RAILWAY_TOKEN` - Railway authentication token
-- `RAILWAY_SERVICE_ID` - Railway service ID (optional, if using Railway CLI)
-- `RAILWAY_API_URL` - Railway API endpoint URL (for health checks, e.g., `https://api.adaptive-italian-audio.railway.app`)
+**Vercel Secrets:**
+- `VERCEL_TOKEN` - Vercel authentication token (get from Vercel dashboard → Settings → Tokens)
+- `VERCEL_ORG_ID` - Vercel organization ID (found in Vercel project settings)
+- `VERCEL_PROJECT_ID` - Vercel project ID (found in Vercel project settings)
+- `VERCEL_DEPLOYMENT_URL` - Production deployment URL (optional, for health checks)
+
+**Render Secrets:**
+- `RENDER_API_KEY` - Render API key (generate in Render dashboard → Account Settings → API Keys)
+- `RENDER_SERVICE_ID` - Render service ID (found in Render service URL, starts with `srv-`)
+- `RENDER_API_URL` - Render API endpoint URL (for health checks, e.g., `https://adaptive-italian-audio-api.onrender.com`)

@@ -1,4 +1,4 @@
-name: Deploy Backend to Railway
+name: Deploy Backend to Render
 
 on:
   push:
@@ -52,21 +52,22 @@ jobs:
       - name: Build backend
         run: pnpm --filter @adaptive-italian-audio/api build
 
-      - name: Deploy to Railway
+      - name: Deploy to Render
         id: deploy
-        uses: bervProject/railway-deploy@v0.2.4
+        uses: JorgeLNJunior/render-deploy@v1.4.6
         with:
-          railway_token: ${{ secrets.RAILWAY_TOKEN }}
-          service: ${{ secrets.RAILWAY_SERVICE_ID }}
-          detach: false
+          service_id: ${{ secrets.RENDER_SERVICE_ID }}
+          api_key: ${{ secrets.RENDER_API_KEY }}
+          clear_cache: true
+          wait_deploy: true
         continue-on-error: false
 
       - name: Verify deployment health check
         run: |
-          API_URL="${{ secrets.RAILWAY_API_URL }}"
+          API_URL="${{ secrets.RENDER_API_URL }}"
           if [ -z "$API_URL" ]; then
-            echo "⚠️ RAILWAY_API_URL secret not set. Skipping health check."
-            echo "Please verify deployment manually at Railway dashboard."
+            echo "⚠️ RENDER_API_URL secret not set. Skipping health check."
+            echo "Please verify deployment manually at Render dashboard."
             exit 0
           fi
           
@@ -92,7 +93,7 @@ jobs:
           
           if [ "$HEALTH_CHECK_PASSED" = "false" ]; then
             echo "⚠️ Health check failed after $MAX_RETRIES attempts. Deployment may still be starting."
-            echo "Please verify deployment manually at Railway dashboard: $API_URL/health"
+            echo "Please verify deployment manually at Render dashboard: $API_URL/health"
             exit 0
           fi
 
@@ -100,8 +101,8 @@ jobs:
         if: success()
         run: |
           echo "✅ Backend deployment completed successfully"
-          if [ -n "${{ secrets.RAILWAY_API_URL }}" ]; then
-            echo "API URL: ${{ secrets.RAILWAY_API_URL }}"
+          if [ -n "${{ secrets.RENDER_API_URL }}" ]; then
+            echo "API URL: ${{ secrets.RENDER_API_URL }}"
           fi
 
       - name: Deployment failure notification
@@ -109,4 +110,4 @@ jobs:
         run: |
           echo "❌ Backend deployment failed"
           echo "Check the logs above for details"
-          echo "Manual rollback: Use Railway dashboard to rollback to previous deployment"
+          echo "Manual rollback: Use Render dashboard to rollback to previous deployment"

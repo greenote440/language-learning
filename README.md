@@ -210,7 +210,7 @@ Create a `.env` file in the root directory based on `.env.example`. Key environm
   - `DB_NAME` - Database name (default: adaptive_italian_audio)
   - `DB_USER` - Database username (default: postgres)
   - `DB_PASSWORD` - Database password
-  - `DB_SSL` - SSL mode (true/false, required for Railway/production)
+  - `DB_SSL` - SSL mode (true/false, required for Render/production)
 - Connection pool configuration:
   - `DB_POOL_MAX` - Maximum pool size (default: 20)
   - `DB_POOL_IDLE_TIMEOUT` - Idle timeout in ms (default: 30000)
@@ -245,12 +245,12 @@ See [.github/workflows/ci.yaml](.github/workflows/ci.yaml) for details.
 The deployment pipeline automatically deploys the application to production environments:
 
 - **Frontend**: Deployed to Vercel on pushes to `main` branch
-- **Backend**: Deployed to Railway on pushes to `main` branch
+- **Backend**: Deployed to Render on pushes to `main` branch
 
 #### Deployment Workflows
 
-- **Frontend Deployment**: [.github/workflows/deploy-frontend.yaml](.github/workflows/deploy-frontend.yaml)
-- **Backend Deployment**: [.github/workflows/deploy-backend.yaml](.github/workflows/deploy-backend.yaml)
+- **Frontend Deployment**: [.github/workflows/deploy-frontend.yaml](.github/workflows/deploy-frontend.yaml) - Deploys to Vercel
+- **Backend Deployment**: [.github/workflows/deploy-backend.yaml](.github/workflows/deploy-backend.yaml) - Deploys to Render
 
 #### Deployment Process
 
@@ -275,15 +275,19 @@ The deployment pipeline automatically deploys the application to production envi
    - Output Directory: `dist`
 4. Configure environment variables in Vercel dashboard (see [Environment Variables](#environment-variables))
 
-**Railway (Backend):**
-1. Create a Railway account and project
-2. Create a new service for the backend API
-3. Connect GitHub repository to Railway
+**Render (Backend):**
+1. Create a Render account at https://render.com
+2. Create a new Web Service
+3. Connect GitHub repository to Render
 4. Configure service settings:
-   - Root Directory: `apps/api`
-   - Build Command: `pnpm install && pnpm --filter @adaptive-italian-audio/api build`
-   - Start Command: `node dist/server.js`
-5. Configure environment variables in Railway dashboard (see [Environment Variables](#environment-variables))
+   - **Name**: `adaptive-italian-audio-api` (or your preferred name)
+   - **Environment**: Node
+   - **Root Directory**: `apps/api`
+   - **Build Command**: `cd ../.. && pnpm install && pnpm --filter @adaptive-italian-audio/api build`
+   - **Start Command**: `node dist/server.js`
+   - **Plan**: Free (or paid plan for production)
+5. Configure environment variables in Render dashboard (see [Environment Variables](#environment-variables))
+6. **Important**: Disable Auto-Deploy in Render settings (Settings → Build & Deploy → Auto-Deploy: OFF) since GitHub Actions will trigger deployments
 
 #### GitHub Secrets Configuration
 
@@ -295,10 +299,10 @@ Configure the following secrets in GitHub repository settings (Settings → Secr
 - `VERCEL_PROJECT_ID` - Vercel project ID (found in Vercel project settings)
 - `VERCEL_DEPLOYMENT_URL` - Production deployment URL (optional, for health checks)
 
-**Railway Secrets:**
-- `RAILWAY_TOKEN` - Railway authentication token (get from Railway dashboard → Account → Tokens)
-- `RAILWAY_SERVICE_ID` - Railway service ID (found in Railway service settings)
-- `RAILWAY_API_URL` - Railway API endpoint URL (e.g., `https://api.adaptive-italian-audio.railway.app`)
+**Render Secrets:**
+- `RENDER_API_KEY` - Render API key (generate in Render dashboard → Account Settings → API Keys)
+- `RENDER_SERVICE_ID` - Render service ID (found in Render service URL, starts with `srv-`)
+- `RENDER_API_URL` - Render API endpoint URL (e.g., `https://adaptive-italian-audio-api.onrender.com`)
 
 See [docs/deployment-env-template.md](docs/deployment-env-template.md) for complete environment variable documentation.
 
@@ -306,7 +310,7 @@ See [docs/deployment-env-template.md](docs/deployment-env-template.md) for compl
 
 After deployment, the workflows automatically verify:
 - **Frontend**: Checks that the deployment URL is accessible (HTTP 200/301/302)
-- **Backend**: Verifies the `/health` endpoint returns HTTP 200
+- **Backend**: Verifies the `/health` endpoint returns HTTP 200 (with retry logic for Render deployments)
 
 #### Rollback Process
 
@@ -314,22 +318,24 @@ If a deployment fails or needs to be rolled back:
 
 1. **Vercel**: Use the Vercel dashboard to rollback to a previous deployment
    - Go to project → Deployments → Select previous deployment → "Promote to Production"
-2. **Railway**: Use the Railway dashboard to rollback to a previous deployment
-   - Go to service → Deployments → Select previous deployment → "Redeploy"
+2. **Render**: Use the Render dashboard to rollback to a previous deployment
+   - Go to service → Deployments → Select previous deployment → "Rollback"
 
 #### Troubleshooting
 
 **Deployment fails:**
 - Check GitHub Actions logs for error details
 - Verify all required secrets are configured
-- Ensure environment variables are set in Vercel/Railway dashboards
+- Ensure environment variables are set in Vercel/Render dashboards
 - Verify build commands work locally
+- For Render: Check that Auto-Deploy is disabled (GitHub Actions handles deployments)
 
 **Health check fails:**
-- Deployment may still be starting (wait 1-2 minutes)
+- Deployment may still be starting (Render free tier can take 1-2 minutes to spin up)
 - Check platform logs for startup errors
 - Verify environment variables are correctly configured
 - Ensure database/Redis connections are working (if applicable)
+- Render free tier services spin down after inactivity - first request may take longer
 
 **Build errors:**
 - Run `pnpm install` and `pnpm build` locally to reproduce
