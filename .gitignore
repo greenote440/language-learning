@@ -29,7 +29,11 @@ lerna-debug.log*
 apps/.env
 apps/api/.env
 apps/lovable_web/.env
-apps/api/.config/adaptive-italian-audio.json
+# Google Cloud Service Account credentials
+apps/api/.config/*.json
+.config/*.json
+**/*credentials*.json
+**/*service-account*.json
 
 # Testing
 coverage/
