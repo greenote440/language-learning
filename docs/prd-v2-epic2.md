@@ -38,11 +38,11 @@ Build the core model-driven content generation infrastructure that operationaliz
 
 **As a** developer,  
 **I want** external API integration infrastructure configured and tested before content generation begins,  
-**so that** OpenAI, Google Cloud TTS, and AWS S3 services are properly integrated and validated before being used in content generation.
+**so that** Gemini API, Google Cloud TTS, and AWS S3 services are properly integrated and validated before being used in content generation.
 
 **Acceptance Criteria:**
 
-1. OpenAI API client library integrated and configured (API key validation, connection testing)
+1. Gemini API client integration implemented and configured (API key validation, connection testing)
 2. Google Cloud TTS API client library integrated and configured (service account authentication, connection testing)
 3. AWS S3 client library integrated and configured (access key authentication, bucket connection testing)
 4. API authentication and credential management implemented (environment variable loading, credential validation)
@@ -63,7 +63,7 @@ Build the core model-driven content generation infrastructure that operationaliz
 
 **Acceptance Criteria:**
 
-1. OpenAI API (or alternative) integrated into backend service with API key management
+1. Gemini API (or alternative) integrated into backend service with API key management
 2. Content generation service integrates with model service to receive model-driven generation parameters
 3. Content generation prompts engineered according to model principles (meaning-first approach, meaning anchoring, controlled variation)
 4. Model service determines generation parameters for each request (lexical novelty budget, construction sets, variation patterns, difficulty calibration)

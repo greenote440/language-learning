@@ -33,7 +33,7 @@ sequenceDiagram
     API->>ModelService: Get generation parameters (preferences)
     ModelService-->>API: Model parameters
     API->>ContentGen: Generate text (model parameters)
-    ContentGen->>ContentGen: OpenAI API call
+    ContentGen->>ContentGen: Gemini API call
     ContentGen-->>API: Generated Italian text
     API->>Pipeline: Execute pipeline (text, sessionId)
     Pipeline->>TTS: Synthesize speech (text)
@@ -79,7 +79,7 @@ sequenceDiagram
     API->>ModelService: Get generation parameters (preferences, adaptationSignals)
     ModelService-->>API: Model parameters (adapted)
     API->>ContentGen: Generate content (model parameters, adaptationSignals)
-    ContentGen->>ContentGen: OpenAI API (with adapted prompts)
+    ContentGen->>ContentGen: Gemini API (with adapted prompts)
     ContentGen-->>API: Generated text
     API->>Pipeline: Execute pipeline (text, sessionId, webhookUrl)
     Pipeline->>Pipeline: TTS → Storage → Session Storage
@@ -180,7 +180,7 @@ sequenceDiagram
     participant Pipeline
     participant ModelService
     participant ContentGen
-    participant OpenAI
+    participant GeminiAPI
     participant TTS
     participant GoogleTTS
     participant AzureTTS
@@ -191,12 +191,12 @@ sequenceDiagram
     Pipeline->>ModelService: Get generation parameters
     ModelService-->>Pipeline: Model parameters
     Pipeline->>ContentGen: Generate text
-    ContentGen->>OpenAI: POST /chat/completions
-    alt OpenAI Success
-        OpenAI-->>ContentGen: Generated text
+    ContentGen->>GeminiAPI: POST /v1beta/models/gemini-1.5-pro:generateContent
+    alt Gemini Success
+        GeminiAPI-->>ContentGen: Generated text
         ContentGen-->>Pipeline: Text content
-    else OpenAI Failure
-        OpenAI-->>ContentGen: Error
+    else Gemini Failure
+        GeminiAPI-->>ContentGen: Error
         ContentGen-->>Pipeline: Generation failed
         Pipeline-->>Pipeline: Return error to API
     end

@@ -42,13 +42,13 @@ Major logical components/services across the fullstack with clear boundaries and
 - REST API endpoints (defined in API Specification)
 - Service layer interfaces for all backend services
 - Database repository interfaces
-- External API client interfaces (OpenAI, Google Cloud TTS)
+- External API client interfaces (Gemini API, Google Cloud TTS)
 
 **Dependencies:**
 - Model Service package
 - PostgreSQL database
 - Redis cache
-- External APIs (OpenAI, Google Cloud TTS)
+- External APIs (Gemini API, Google Cloud TTS)
 - AWS S3 for audio storage
 
 **Technology Stack:**
@@ -90,7 +90,7 @@ Major logical components/services across the fullstack with clear boundaries and
 
 ## Content Generation Service
 
-**Responsibility:** Orchestrates model-driven Italian text generation via OpenAI API, integrates with Model Service for generation parameters, and manages content format/template selection.
+**Responsibility:** Orchestrates model-driven Italian text generation via Gemini API, integrates with Model Service for generation parameters, and manages content format/template selection.
 
 **Key Interfaces:**
 - `generateContent(sessionId, userPreferences, adaptationSignals, continuityContext): Promise<Content>`
@@ -99,19 +99,19 @@ Major logical components/services across the fullstack with clear boundaries and
 
 **Dependencies:**
 - Model Service (for generation parameters)
-- OpenAI API (for text generation)
+- Gemini API (for text generation)
 - Content Storage Service (for saving generated content)
 
 **Technology Stack:**
 - Node.js with TypeScript
-- OpenAI SDK
+- Google AI / Gemini API client (HTTP or official SDK)
 - Template engine for prompt construction
 
 **Key Sub-Components:**
 - **Prompt Builder:** Constructs model-driven prompts according to model principles
 - **Template Selector:** Chooses appropriate template based on format/genre preferences
 - **Content Validator:** Validates generated content quality and model criteria
-- **Rate Limit Manager:** Handles OpenAI API rate limits and quota management
+- **Rate Limit Manager:** Handles Gemini API rate limits and quota management
 
 ## Text-to-Speech Service
 

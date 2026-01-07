@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from "react";
-import { Settings, ChevronDown } from "lucide-react";
+import { useState, useEffect, useCallback, useRef } from "react";
+import { Settings, ChevronDown, ChevronUp } from "lucide-react";
 import AudioPlayer from "./AudioPlayer";
 import LikeButton from "./LikeButton";
 import ComprehensionButton from "./ComprehensionButton";
@@ -26,6 +26,11 @@ const formatBadge: Record<AudioClip['format'], string> = {
   educational: 'Lezione',
 };
 
+// Scroll threshold to trigger content change (pixels)
+const SCROLL_THRESHOLD = 50;
+// Debounce time for scroll actions (ms)
+const SCROLL_DEBOUNCE = 300;
+
 const MainListeningScreen = ({
   initialClip,
   onContentChange,
@@ -42,22 +47,122 @@ const MainListeningScreen = ({
   );
   const [isLoading, setIsLoading] = useState(false);
   const [showScrollHint, setShowScrollHint] = useState(true);
+  const [scrollDirection, setScrollDirection] = useState<'forward' | 'backward' | null>(null);
+  const [scrollPosition, setScrollPosition] = useState(0);
+  
+  // Refs for scroll tracking
+  const scrollYRef = useRef(0);
+  const lastScrollTimeRef = useRef(0);
+  const touchStartYRef = useRef(0);
+  const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const handleScroll = useCallback((e: WheelEvent) => {
+  // Handle wheel events (desktop)
+  const handleWheel = useCallback((e: WheelEvent) => {
     if (isLoading) return;
     
     const direction = e.deltaY > 0 ? 'forward' : 'backward';
-    setShowScrollHint(false);
+    const now = Date.now();
     
-    // Placeholder for content change
-    console.log('Scroll direction:', direction);
+    // Debounce scroll actions
+    if (now - lastScrollTimeRef.current < SCROLL_DEBOUNCE) {
+      return;
+    }
+    
+    lastScrollTimeRef.current = now;
+    setShowScrollHint(false);
+    setScrollDirection(direction);
+    
+    // Reset direction indicator after animation
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      setScrollDirection(null);
+    }, 500);
+    
+    // Trigger content change
+    console.log('Scroll direction:', direction, 'Position:', scrollYRef.current);
     onContentChange?.(direction);
   }, [isLoading, onContentChange]);
 
+  // Handle touch events (mobile)
+  const handleTouchStart = useCallback((e: TouchEvent) => {
+    if (isLoading) return;
+    touchStartYRef.current = e.touches[0].clientY;
+  }, [isLoading]);
+
+  const handleTouchMove = useCallback((e: TouchEvent) => {
+    if (isLoading) return;
+    
+    const touchY = e.touches[0].clientY;
+    const deltaY = touchStartYRef.current - touchY;
+    
+    // Only trigger if scroll threshold is met
+    if (Math.abs(deltaY) < SCROLL_THRESHOLD) {
+      return;
+    }
+    
+    const direction = deltaY > 0 ? 'forward' : 'backward';
+    const now = Date.now();
+    
+    // Debounce scroll actions
+    if (now - lastScrollTimeRef.current < SCROLL_DEBOUNCE) {
+      return;
+    }
+    
+    lastScrollTimeRef.current = now;
+    setShowScrollHint(false);
+    setScrollDirection(direction);
+    
+    // Reset direction indicator after animation
+    if (scrollTimeoutRef.current) {
+      clearTimeout(scrollTimeoutRef.current);
+    }
+    scrollTimeoutRef.current = setTimeout(() => {
+      setScrollDirection(null);
+    }, 500);
+    
+    // Update scroll position tracking
+    scrollYRef.current += deltaY;
+    setScrollPosition(scrollYRef.current);
+    
+    // Trigger content change
+    console.log('Touch scroll direction:', direction, 'Position:', scrollYRef.current);
+    onContentChange?.(direction);
+    
+    // Reset touch start for next gesture
+    touchStartYRef.current = touchY;
+  }, [isLoading, onContentChange]);
+
+  // Track scroll position (for visual feedback)
+  const handleScrollPosition = useCallback(() => {
+    const currentScrollY = window.scrollY || document.documentElement.scrollTop;
+    scrollYRef.current = currentScrollY;
+    setScrollPosition(currentScrollY);
+  }, []);
+
+  // Set up event listeners
   useEffect(() => {
-    window.addEventListener('wheel', handleScroll, { passive: true });
-    return () => window.removeEventListener('wheel', handleScroll);
-  }, [handleScroll]);
+    // Desktop wheel events
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    
+    // Mobile touch events
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+    
+    // Scroll position tracking
+    window.addEventListener('scroll', handleScrollPosition, { passive: true });
+    
+    return () => {
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
+      window.removeEventListener('scroll', handleScrollPosition);
+      if (scrollTimeoutRef.current) {
+        clearTimeout(scrollTimeoutRef.current);
+      }
+    };
+  }, [handleWheel, handleTouchStart, handleTouchMove, handleScrollPosition]);
 
   // Hide scroll hint after 5 seconds
   useEffect(() => {
@@ -128,6 +233,36 @@ const MainListeningScreen = ({
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center animate-fade-in">
           <span className="text-xs text-muted-foreground mb-2">Scroll for more</span>
           <ChevronDown className="w-5 h-5 text-muted-foreground animate-bounce" />
+        </div>
+      )}
+
+      {/* Scroll Direction Indicator */}
+      {scrollDirection && (
+        <div className={`fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
+          pointer-events-none z-50 transition-opacity duration-300
+          ${scrollDirection === 'forward' ? 'opacity-100' : 'opacity-100'}`}>
+          <div className={`flex flex-col items-center gap-2 px-4 py-3 rounded-full
+            bg-primary/10 backdrop-blur-sm border border-primary/20
+            ${scrollDirection === 'forward' ? 'animate-fade-in' : 'animate-fade-in'}`}>
+            {scrollDirection === 'forward' ? (
+              <>
+                <ChevronDown className="w-6 h-6 text-primary" />
+                <span className="text-xs font-medium text-primary">Next</span>
+              </>
+            ) : (
+              <>
+                <ChevronUp className="w-6 h-6 text-primary" />
+                <span className="text-xs font-medium text-primary">Previous</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Scroll Position Indicator (subtle, for debugging/feedback) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed bottom-4 right-4 text-xs text-muted-foreground/50 font-mono">
+          Scroll: {Math.round(scrollPosition)}px
         </div>
       )}
 

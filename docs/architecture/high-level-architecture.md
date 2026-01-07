@@ -3,7 +3,7 @@
 
 ## Technical Summary
 
-The Adaptive Italian Audio application is built as a modular monolith using a Turborepo monorepo structure, optimized for rapid development and future scalability. The frontend is a React-based Progressive Web App (PWA) with TypeScript and Tailwind CSS, designed for mobile-first responsive consumption. The backend consists of Node.js/Express services with TypeScript, including a centralized Model Service that operationalizes the foundation language acquisition model. The system integrates with external AI APIs (OpenAI for text generation, Google Cloud TTS for audio conversion) and uses PostgreSQL for structured data storage with Redis for session caching. The architecture supports asynchronous content generation pipelines, real-time behavioral tracking, and model-driven adaptation logic. Deployment uses a modern cloud platform (Vercel for frontend, Railway/Render for backend) with cloud storage (AWS S3 or Google Cloud Storage) for audio files and CDN delivery. The system is designed to operate within free-tier API limits for MVP scale while supporting model-driven content generation, adaptation, and measurement throughout.
+The Adaptive Italian Audio application is built as a modular monolith using a Turborepo monorepo structure, optimized for rapid development and future scalability. The frontend is a React-based Progressive Web App (PWA) with TypeScript and Tailwind CSS, designed for mobile-first responsive consumption. The backend consists of Node.js/Express services with TypeScript, including a centralized Model Service that operationalizes the foundation language acquisition model. The system integrates with external AI APIs (Google Gemini for text generation, Google Cloud TTS for audio conversion) and uses PostgreSQL for structured data storage with Redis for session caching. The architecture supports asynchronous content generation pipelines, real-time behavioral tracking, and model-driven adaptation logic. Deployment uses a modern cloud platform (Vercel for frontend, Railway/Render for backend) with cloud storage (AWS S3 or Google Cloud Storage) for audio files and CDN delivery. The system is designed to operate within free-tier API limits for MVP scale while supporting model-driven content generation, adaptation, and measurement throughout.
 
 ## Platform and Infrastructure Choice
 
@@ -84,12 +84,12 @@ Based on PRD v2 requirements, we need:
 
 **External Service Account Creation (Required Before Epic 1):**
 
-1. **OpenAI API Account Setup:**
-   - Create OpenAI account at https://platform.openai.com
+1. **Gemini API Access Setup (Google AI Studio):**
+   - Enable Gemini API access via Google AI Studio at https://aistudio.google.com
    - Generate API key from account settings
    - Store API key securely for environment variable configuration
-   - Verify API key has access to GPT-3.5-turbo and GPT-4 models
-   - **User Action Required:** Account creation and API key generation
+   - Verify API key has access to the chosen Gemini model (e.g. `gemini-1.5-pro`)
+   - **User Action Required:** API access setup and API key generation
 
 2. **Google Cloud TTS Service Setup:**
    - Create Google Cloud Platform account (or use existing)
@@ -190,7 +190,7 @@ graph TB
     end
 
     subgraph "External APIs"
-        OpenAI[OpenAI API<br/>Text Generation]
+        Gemini[Gemini API<br/>Text Generation]
         GoogleTTS[Google Cloud TTS<br/>Speech Synthesis]
     end
 
@@ -203,7 +203,7 @@ graph TB
     API --> UserSvc
     API --> LearnerSvc
     API --> AnalyticsSvc
-    ContentGen --> OpenAI
+    ContentGen --> Gemini
     ContentGen --> ModelSvc
     TTSSvc --> GoogleTTS
     AudioProc --> TTSSvc

@@ -223,7 +223,7 @@ Asynchronous processing is implemented using queue-based systems to handle conte
 
 **Third-Party API Integrations:**
 - **Text-to-Speech:** Google Cloud TTS (primary) with Azure as fallback
-- **Text Generation:** OpenAI GPT-4 or GPT-3.5-turbo for Italian content generation (model-driven prompts)
+- **Text Generation:** Google Gemini (e.g. `gemini-1.5-pro`) for Italian content generation (model-driven prompts)
 - **Analytics:** Custom analytics implementation (PostgreSQL-based) for behavioral tracking and model validation
 
 **Model Implementation Requirements:**
@@ -242,8 +242,8 @@ Asynchronous processing is implemented using queue-based systems to handle conte
 
 The following external service accounts must be created and configured by the user before the application can function. These are **user responsibilities** and cannot be automated by developer agents:
 
-1. **OpenAI API Account**
-   - User must create an OpenAI account at https://platform.openai.com
+1. **Gemini API Access (Google AI Studio)**
+   - User must enable Gemini API access via Google AI Studio at https://aistudio.google.com
    - User must generate an API key with appropriate permissions
    - API key must be configured in application environment variables
    - Required for: Italian text content generation (Epic 2)

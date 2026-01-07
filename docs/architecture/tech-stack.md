@@ -37,8 +37,8 @@ This is the **DEFINITIVE** technology selection for the entire project. All deve
 - **Rationale:** PRD specifies Google Cloud TTS as primary with Azure fallback for reliability
 
 **Text Generation:**
-- **Primary:** OpenAI GPT-4 or GPT-3.5-turbo
-- **Rationale:** PRD specifies OpenAI for Italian content generation, GPT-3.5-turbo for cost efficiency, GPT-4 for quality when needed
+- **Primary:** Google Gemini (via Gemini API, e.g. `gemini-1.5-pro`)
+- **Rationale:** Use Gemini for Italian content generation, leveraging the user's existing Gemini subscription and aligning with Google Cloud services. OpenAI is no longer the primary provider.
 
 **Audio Processing:**
 - **Format:** MP3 (128kbps recommended)

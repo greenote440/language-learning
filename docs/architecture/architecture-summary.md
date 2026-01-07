@@ -30,7 +30,7 @@ This architecture document provides a comprehensive foundation for building the 
 
 ## External Integrations
 
-- **OpenAI API:** Italian text generation (GPT-3.5-turbo/GPT-4)
+- **Gemini API (Google AI):** Italian text generation (e.g. `gemini-1.5-pro`)
 - **Google Cloud TTS:** Primary speech synthesis
 - **Azure TTS:** Fallback speech synthesis
 - **CloudFlare CDN:** Global audio delivery

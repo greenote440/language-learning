@@ -1,3 +1,5 @@
+/* Font loading optimized with display=swap for better performance */
+/* Using font-display: swap to prevent FOIT (Flash of Invisible Text) */
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;

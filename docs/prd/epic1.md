@@ -72,12 +72,12 @@ Establish the foundational technical infrastructure for the application includin
 ### Story 1.4: External Service Account Setup (User Action Required)
 
 **As a** user/developer,  
-**I want** clear instructions and documentation for setting up external service accounts (OpenAI, Google Cloud TTS, AWS S3),  
+**I want** clear instructions and documentation for setting up external service accounts (Gemini API, Google Cloud TTS, AWS S3),  
 **so that** I can provision the required API keys and service accounts before the application attempts to use these services.
 
 **Acceptance Criteria:**
 
-1. **USER ACTION REQUIRED:** Documentation created for OpenAI API account creation and API key acquisition
+1. **USER ACTION REQUIRED:** Documentation created for Gemini API access setup and API key acquisition (via Google AI Studio)
 2. **USER ACTION REQUIRED:** Documentation created for Google Cloud TTS service account setup and API key configuration
 3. **USER ACTION REQUIRED:** Documentation created for AWS S3 bucket creation and access key configuration
 4. Setup instructions include step-by-step account creation process for each service

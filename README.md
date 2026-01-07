@@ -73,13 +73,21 @@ For local development, you'll need a PostgreSQL database. See [Database Setup Gu
 2. Create database: `CREATE DATABASE adaptive_italian_audio;`
 3. Configure connection in `.env` file (see [Environment Variables](#environment-variables))
 
-### External Service Prerequisites (for future stories)
+### External Service Prerequisites
 
-The following services will be required in Epic 2:
-- **OpenAI API** - For Italian content generation
-- **Google Cloud TTS** - Primary text-to-speech service
-- **Azure Cognitive Services TTS** - Fallback text-to-speech service
+**⚠️ USER ACTION REQUIRED:** The following external services must be set up manually by the user before Epic 2 implementation. Developer agents cannot automate external service account creation.
+
+The following services are required for Epic 2:
+- **Gemini API (Google AI)** - For Italian content generation
+  - Setup Guide: [docs/setup/gemini-api-setup.md](docs/setup/gemini-api-setup.md)
+- **Google Cloud Text-to-Speech** - Primary text-to-speech service
+  - Setup Guide: [docs/setup/google-cloud-tts-setup.md](docs/setup/google-cloud-tts-setup.md)
 - **AWS S3** - Audio file storage
+  - Setup Guide: [docs/setup/aws-s3-setup.md](docs/setup/aws-s3-setup.md)
+
+**Note:** Azure Cognitive Services TTS is an optional fallback service and may be configured later if needed.
+
+**Setup Required:** Complete all three setup guides above before proceeding with Epic 2 development. The application includes startup validation to check for required credentials and will display clear error messages if any are missing.
 
 ## Installation
 
@@ -193,7 +201,7 @@ Create a `.env` file in the root directory based on `.env.example`. Key environm
 - `NODE_ENV` - Environment (development/production)
 
 ### External Services (Epic 2+)
-- `OPENAI_API_KEY` - OpenAI API key for content generation
+- `GEMINI_API_KEY` - Gemini API key for content generation (from Google AI Studio)
 - `GOOGLE_CLOUD_PROJECT_ID` - Google Cloud project ID
 - `GOOGLE_CLOUD_TTS_CREDENTIALS_PATH` - Path to service account key
 - `AWS_REGION` - AWS region for S3

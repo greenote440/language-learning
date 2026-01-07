@@ -20,7 +20,7 @@ Copy these variables and configure values in Vercel (frontend) and Railway (back
 - `PORT` - Server port (Railway may set this automatically, default: 3001)
 
 ### External Service API Keys (Epic 2+)
-- `OPENAI_API_KEY` - OpenAI API key for Italian content generation
+- `GEMINI_API_KEY` - Gemini API key for Italian content generation (from Google AI Studio)
 - `GOOGLE_CLOUD_TTS_CREDENTIALS` - Google Cloud TTS service account JSON (string or path)
 - `AWS_ACCESS_KEY_ID` - AWS S3 access key
 - `AWS_SECRET_ACCESS_KEY` - AWS S3 secret key

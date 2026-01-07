@@ -3,32 +3,33 @@
 
 External service integrations required for the application. Documented with authentication methods, endpoints, rate limits, and integration considerations.
 
-## OpenAI API
+## Gemini API (Google AI)
 
 **Purpose:** Generate Italian text content following model-driven principles. Primary text generation service for narratives, podcasts, and educational content.
 
-**Documentation:** https://platform.openai.com/docs/api-reference
+**Documentation:** https://ai.google.dev/gemini-api/docs
 
 **Base URL(s):**
-- Production: `https://api.openai.com/v1`
-- Text generation endpoint: `POST /chat/completions`
+- Production: `https://generativelanguage.googleapis.com`
+- Text generation endpoint (examples):
+- `POST /v1beta/models/gemini-1.5-pro:generateContent`
 
 **Authentication:**
-- Method: Bearer token (API key in Authorization header)
-- API key stored in environment variable: `OPENAI_API_KEY`
+- Method: API key in `x-goog-api-key` header
+- API key stored in environment variable: `GEMINI_API_KEY`
 - Security: API key stored server-side only, never exposed to frontend
 
-**Rate Limits:**
-- Free tier: Limited requests per minute (varies by model)
-- GPT-3.5-turbo: Recommended for MVP (cost-effective)
-- GPT-4: Available for higher quality when needed
+**Rate Limits & Pricing:**
+- No traditional “always-free” tier; usage is billed per input/output tokens
+- Gemini Pro models are low cost and suitable for MVP scale (exact pricing depends on model, e.g. `gemini-1.5-pro`)
+- Some consumer subscriptions (e.g. Gemini Advanced) include bundled API usage via Google AI Studio
 - Rate limit handling: Exponential backoff retry logic, queue-based request management
 
 **Key Endpoints Used:**
-- `POST /v1/chat/completions` - Generate Italian text content
-  - Model: `gpt-3.5-turbo` (primary) or `gpt-4` (when quality needed)
-  - Messages: System prompt (model-driven) + user prompt (content request)
-  - Temperature: Controlled by model service parameters
+- `POST /v1beta/models/gemini-1.5-pro:generateContent` - Generate Italian text content
+  - Model: `gemini-1.5-pro` (primary) or other suitable Gemini model
+  - Request body: `contents` with user and system parts (model-driven prompts)
+  - Temperature/top_p: Controlled by model service parameters
   - Max tokens: Based on content length requirements
 
 **Integration Notes:**
@@ -36,7 +37,7 @@ External service integrations required for the application. Documented with auth
 - Content Generation Service constructs prompts according to model principles
 - Rate limiting managed by Content Generation Service with retry logic
 - Error handling: Network errors, API errors, timeout errors with appropriate fallbacks
-- Cost management: Monitor token usage, prefer GPT-3.5-turbo for MVP scale
+- Cost management: Monitor token usage, choose cost-effective Gemini model (e.g. `gemini-1.5-pro`) and leverage any bundled subscription usage
 
 ## Google Cloud Text-to-Speech API
 

@@ -45,7 +45,7 @@ This unified approach combines what would traditionally be separate backend and 
 
 ### Technical Summary
 
-The Adaptive Italian Audio application is built as a modular monolith using a Turborepo monorepo structure, optimized for rapid development and future scalability. The frontend is a React-based Progressive Web App (PWA) with TypeScript and Tailwind CSS, designed for mobile-first responsive consumption. The backend consists of Node.js/Express services with TypeScript, including a centralized Model Service that operationalizes the foundation language acquisition model. The system integrates with external AI APIs (OpenAI for text generation, Google Cloud TTS for audio conversion) and uses PostgreSQL for structured data storage with Redis for session caching. The architecture supports asynchronous content generation pipelines, real-time behavioral tracking, and model-driven adaptation logic. Deployment uses a modern cloud platform (Vercel for frontend, Railway/Render for backend) with cloud storage (AWS S3 or Google Cloud Storage) for audio files and CDN delivery. The system is designed to operate within free-tier API limits for MVP scale while supporting model-driven content generation, adaptation, and measurement throughout.
+The Adaptive Italian Audio application is built as a modular monolith using a Turborepo monorepo structure, optimized for rapid development and future scalability. The frontend is a React-based Progressive Web App (PWA) with TypeScript and Tailwind CSS, designed for mobile-first responsive consumption. The backend consists of Node.js/Express services with TypeScript, including a centralized Model Service that operationalizes the foundation language acquisition model. The system integrates with external AI APIs (Google Gemini for text generation, Google Cloud TTS for audio conversion) and uses PostgreSQL for structured data storage with Redis for session caching. The architecture supports asynchronous content generation pipelines, real-time behavioral tracking, and model-driven adaptation logic. Deployment uses a modern cloud platform (Vercel for frontend, Railway/Render for backend) with cloud storage (AWS S3 or Google Cloud Storage) for audio files and CDN delivery. The system is designed to operate within free-tier API limits for MVP scale while supporting model-driven content generation, adaptation, and measurement throughout.
 
 ### Platform and Infrastructure Choice
 
@@ -126,12 +126,12 @@ Based on PRD v2 requirements, we need:
 
 **External Service Account Creation (Required Before Epic 1):**
 
-1. **OpenAI API Account Setup:**
-   - Create OpenAI account at https://platform.openai.com
-   - Generate API key from account settings
+1. **Gemini API Access Setup (Google AI Studio):**
+   - Enable Gemini API access via Google AI Studio at https://aistudio.google.com
+   - Generate API key from AI Studio
    - Store API key securely for environment variable configuration
-   - Verify API key has access to GPT-3.5-turbo and GPT-4 models
-   - **User Action Required:** Account creation and API key generation
+   - Verify API key has access to the chosen Gemini model (e.g. `gemini-1.5-pro`)
+   - **User Action Required:** API access setup and API key generation
 
 2. **Google Cloud TTS Service Setup:**
    - Create Google Cloud Platform account (or use existing)
@@ -232,7 +232,7 @@ graph TB
     end
 
     subgraph "External APIs"
-        OpenAI[OpenAI API<br/>Text Generation]
+        Gemini[Gemini API<br/>Text Generation]
         GoogleTTS[Google Cloud TTS<br/>Speech Synthesis]
     end
 
@@ -245,7 +245,7 @@ graph TB
     API --> UserSvc
     API --> LearnerSvc
     API --> AnalyticsSvc
-    ContentGen --> OpenAI
+    ContentGen --> Gemini
     ContentGen --> ModelSvc
     TTSSvc --> GoogleTTS
     AudioProc --> TTSSvc
@@ -317,8 +317,8 @@ This is the **DEFINITIVE** technology selection for the entire project. All deve
 - **Rationale:** PRD specifies Google Cloud TTS as primary with Azure fallback for reliability
 
 **Text Generation:**
-- **Primary:** OpenAI GPT-4 or GPT-3.5-turbo
-- **Rationale:** PRD specifies OpenAI for Italian content generation, GPT-3.5-turbo for cost efficiency, GPT-4 for quality when needed
+- **Primary:** Google Gemini (e.g. `gemini-1.5-pro`)
+- **Rationale:** Use Gemini for Italian content generation, leveraging Google ecosystem and user’s Gemini subscription. OpenAI is no longer the primary provider.
 
 **Audio Processing:**
 - **Format:** MP3 (128kbps recommended)
@@ -1458,13 +1458,13 @@ Major logical components/services across the fullstack with clear boundaries and
 - REST API endpoints (defined in API Specification)
 - Service layer interfaces for all backend services
 - Database repository interfaces
-- External API client interfaces (OpenAI, Google Cloud TTS)
+- External API client interfaces (Gemini API, Google Cloud TTS)
 
 **Dependencies:**
 - Model Service package
 - PostgreSQL database
 - Redis cache
-- External APIs (OpenAI, Google Cloud TTS)
+- External APIs (Gemini API, Google Cloud TTS)
 - AWS S3 for audio storage
 
 **Technology Stack:**
@@ -1506,7 +1506,7 @@ Major logical components/services across the fullstack with clear boundaries and
 
 ### Content Generation Service
 
-**Responsibility:** Orchestrates model-driven Italian text generation via OpenAI API, integrates with Model Service for generation parameters, and manages content format/template selection.
+**Responsibility:** Orchestrates model-driven Italian text generation via Gemini API, integrates with Model Service for generation parameters, and manages content format/template selection.
 
 **Key Interfaces:**
 - `generateContent(sessionId, userPreferences, adaptationSignals, continuityContext): Promise<Content>`
@@ -1515,19 +1515,19 @@ Major logical components/services across the fullstack with clear boundaries and
 
 **Dependencies:**
 - Model Service (for generation parameters)
-- OpenAI API (for text generation)
+- Gemini API (for text generation)
 - Content Storage Service (for saving generated content)
 
 **Technology Stack:**
 - Node.js with TypeScript
-- OpenAI SDK
+- Google AI / Gemini API client (HTTP or official SDK)
 - Template engine for prompt construction
 
 **Key Sub-Components:**
 - **Prompt Builder:** Constructs model-driven prompts according to model principles
 - **Template Selector:** Chooses appropriate template based on format/genre preferences
 - **Content Validator:** Validates generated content quality and model criteria
-- **Rate Limit Manager:** Handles OpenAI API rate limits and quota management
+- **Rate Limit Manager:** Handles Gemini API rate limits and quota management
 
 ### Text-to-Speech Service
 
@@ -1744,19 +1744,20 @@ Major logical components/services across the fullstack with clear boundaries and
 
 External service integrations required for the application. Documented with authentication methods, endpoints, rate limits, and integration considerations.
 
-### OpenAI API
+### Gemini API (Google AI)
 
 **Purpose:** Generate Italian text content following model-driven principles. Primary text generation service for narratives, podcasts, and educational content.
 
-**Documentation:** https://platform.openai.com/docs/api-reference
+**Documentation:** https://ai.google.dev/gemini-api/docs
 
 **Base URL(s):**
-- Production: `https://api.openai.com/v1`
-- Text generation endpoint: `POST /chat/completions`
+- Production: `https://generativelanguage.googleapis.com`
+- Text generation endpoint (examples):
+- `POST /v1beta/models/gemini-1.5-pro:generateContent`
 
 **Authentication:**
-- Method: Bearer token (API key in Authorization header)
-- API key stored in environment variable: `OPENAI_API_KEY`
+- Method: API key in `x-goog-api-key` header
+- API key stored in environment variable: `GEMINI_API_KEY`
 - Security: API key stored server-side only, never exposed to frontend
 
 **Rate Limits:**
@@ -1944,7 +1945,7 @@ sequenceDiagram
     API->>ModelService: Get generation parameters (preferences)
     ModelService-->>API: Model parameters
     API->>ContentGen: Generate text (model parameters)
-    ContentGen->>ContentGen: OpenAI API call
+    ContentGen->>ContentGen: Gemini API call
     ContentGen-->>API: Generated Italian text
     API->>Pipeline: Execute pipeline (text, sessionId)
     Pipeline->>TTS: Synthesize speech (text)
@@ -1990,7 +1991,7 @@ sequenceDiagram
     API->>ModelService: Get generation parameters (preferences, adaptationSignals)
     ModelService-->>API: Model parameters (adapted)
     API->>ContentGen: Generate content (model parameters, adaptationSignals)
-    ContentGen->>ContentGen: OpenAI API (with adapted prompts)
+    ContentGen->>ContentGen: Gemini API (with adapted prompts)
     ContentGen-->>API: Generated text
     API->>Pipeline: Execute pipeline (text, sessionId, webhookUrl)
     Pipeline->>Pipeline: TTS → Storage → Session Storage
@@ -2091,7 +2092,7 @@ sequenceDiagram
     participant Pipeline
     participant ModelService
     participant ContentGen
-    participant OpenAI
+    participant GeminiAPI
     participant TTS
     participant GoogleTTS
     participant AzureTTS
@@ -2102,12 +2103,12 @@ sequenceDiagram
     Pipeline->>ModelService: Get generation parameters
     ModelService-->>Pipeline: Model parameters
     Pipeline->>ContentGen: Generate text
-    ContentGen->>OpenAI: POST /chat/completions
-    alt OpenAI Success
-        OpenAI-->>ContentGen: Generated text
+    ContentGen->>GeminiAPI: POST /v1beta/models/gemini-1.5-pro:generateContent
+    alt Gemini Success
+        GeminiAPI-->>ContentGen: Generated text
         ContentGen-->>Pipeline: Text content
-    else OpenAI Failure
-        OpenAI-->>ContentGen: Error
+    else Gemini Failure
+        GeminiAPI-->>ContentGen: Error
         ContentGen-->>Pipeline: Generation failed
         Pipeline-->>Pipeline: Return error to API
     end
@@ -2680,7 +2681,7 @@ This architecture document provides a comprehensive foundation for building the 
 
 ### External Integrations
 
-- **OpenAI API:** Italian text generation (GPT-3.5-turbo/GPT-4)
+- **Gemini API (Google AI):** Italian text generation (e.g. `gemini-1.5-pro`)
 - **Google Cloud TTS:** Primary speech synthesis
 - **Azure TTS:** Fallback speech synthesis
 - **CloudFlare CDN:** Global audio delivery
